@@ -1,0 +1,40 @@
+.app-header {
+	background-color: var(--color-primary);
+	color: var(--color-surface);
+	box-shadow: var(--color-shadow-soft);
+}
+
+.app-header__inner {
+	max-width: 960px;
+	margin: 0 auto;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 1.5rem;
+	padding: 1rem 1.5rem;
+}
+
+.app-header__link {
+	color: var(--color-surface);
+	text-decoration: none;
+	font-weight: 500;
+	letter-spacing: 0.02em;
+	padding: 0.4rem 0.8rem;
+	border-radius: 999px;
+	transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.app-header__link--button {
+	background: none;
+	border: none;
+	cursor: pointer;
+}
+
+.app-header__link:hover {
+	background-color: var(--color-primary-dark);
+}
+
+.app-header__link.active {
+	background-color: var(--color-surface);
+	color: var(--color-primary);
+}

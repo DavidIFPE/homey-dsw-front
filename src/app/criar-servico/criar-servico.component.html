@@ -1,0 +1,193 @@
+<div class="criar-servico-page">
+    <section class="criar-servico-card">
+        <h2 class="criar-servico-title">Criar serviço</h2>
+
+        <form (submit)="criarServico(); $event.preventDefault()" class="criar-servico-form">
+            <div class="criar-servico-field">
+                <label for="titulo">Título</label>
+                <input
+                    id="titulo"
+                    type="text"
+                    placeholder="Ex: Limpeza residencial"
+                    [(ngModel)]="titulo"
+                    name="titulo"
+                    required
+                />
+            </div>
+
+            <div class="criar-servico-field">
+                <label for="descricao">Descrição</label>
+                <textarea
+                    id="descricao"
+                    placeholder="Detalhe o serviço oferecido"
+                    [(ngModel)]="descricao"
+                    name="descricao"
+                ></textarea>
+            </div>
+
+            <div class="criar-servico-field">
+                <label for="precoBase">Preço base (R$)</label>
+                <input
+                    id="precoBase"
+                    type="number"
+                    placeholder="0,00"
+                    [(ngModel)]="precoBase"
+                    name="precoBase"
+                    step="0.01"
+                    required
+                />
+            </div>
+
+            <div class="criar-servico-field">
+                <label for="categorias">Categorias (separadas por vírgula)</label>
+                <input
+                    id="categorias"
+                    type="text"
+                    placeholder="Ex: Limpeza, Residencial, Diária"
+                    [(ngModel)]="categoriasTexto"
+                    name="categorias"
+                />
+            </div>
+
+            <!-- Endereço do serviço -->
+            <div class="criar-servico-field">
+                <label for="logradouro">Logradouro</label>
+                <input
+                    id="logradouro"
+                    type="text"
+                    placeholder="Ex: Rua das Flores"
+                    [(ngModel)]="logradouro"
+                    name="logradouro"
+                />
+            </div>
+
+            <div class="criar-servico-field">
+                <label for="numero">Número</label>
+                <input
+                    id="numero"
+                    type="text"
+                    placeholder="Ex: 123"
+                    [(ngModel)]="numero"
+                    name="numero"
+                />
+            </div>
+
+            <div class="criar-servico-field">
+                <label for="complemento">Complemento</label>
+                <input
+                    id="complemento"
+                    type="text"
+                    placeholder="Apartamento, bloco, etc."
+                    [(ngModel)]="complemento"
+                    name="complemento"
+                />
+            </div>
+
+            <div class="criar-servico-field">
+                <label for="bairro">Bairro</label>
+                <input
+                    id="bairro"
+                    type="text"
+                    placeholder="Ex: Centro"
+                    [(ngModel)]="bairro"
+                    name="bairro"
+                />
+            </div>
+
+            <div class="criar-servico-field">
+                <label for="cidade">Cidade</label>
+                <input
+                    id="cidade"
+                    type="text"
+                    placeholder="Ex: São Paulo"
+                    [(ngModel)]="cidade"
+                    name="cidade"
+                />
+            </div>
+
+            <div class="criar-servico-field">
+                <label for="estado">Estado</label>
+                <input
+                    id="estado"
+                    type="text"
+                    placeholder="Ex: SP"
+                    maxlength="2"
+                    [(ngModel)]="estado"
+                    name="estado"
+                />
+            </div>
+
+            <div class="criar-servico-field">
+                <label for="cep">CEP</label>
+                <div class="criar-servico-cep-row">
+                    <input
+                        id="cep"
+                        type="text"
+                        placeholder="Ex: 00000-000"
+                        [(ngModel)]="cep"
+                        name="cep"
+                    />
+                    <button
+                        type="button"
+                        class="criar-servico-buscar-cep"
+                        (click)="buscarEnderecoPorCEP()"
+                        [disabled]="buscandoCEP"
+                    >
+                        {{ buscandoCEP ? 'Buscando...' : 'Buscar CEP' }}
+                    </button>
+                    <button
+                        type="button"
+                        class="criar-servico-buscar-coord"
+                        (click)="buscarCoordenadas()"
+                        [disabled]="buscandoCoordenadas"
+                    >
+                        {{ buscandoCoordenadas ? 'Buscando...' : 'Buscar coordenadas' }}
+                    </button>
+                </div>
+            </div>
+
+            <div class="criar-servico-field">
+                <label for="latitude">Latitude</label>
+                <input
+                    id="latitude"
+                    type="number"
+                    [(ngModel)]="latitude"
+                    name="latitude"
+                    step="0.000001"
+                    readonly
+                    disabled
+                    placeholder="Preenchido automaticamente"
+                />
+            </div>
+
+            <div class="criar-servico-field">
+                <label for="longitude">Longitude</label>
+                <input
+                    id="longitude"
+                    type="number"
+                    [(ngModel)]="longitude"
+                    name="longitude"
+                    step="0.000001"
+                    readonly
+                    disabled
+                    placeholder="Preenchido automaticamente"
+                />
+            </div>
+
+            <div class="criar-servico-field criar-servico-field--inline">
+                <label class="criar-servico-toggle">
+                    <input type="checkbox" [(ngModel)]="disponivel" name="disponivel" />
+                    <span>Disponível para contratação</span>
+                </label>
+            </div>
+
+            <button type="submit" class="criar-servico-button">Criar serviço</button>
+
+            @if (erro) {
+                <p class="criar-servico-message criar-servico-message--error">
+                    {{ erro }}
+                </p>
+            }
+        </form>
+    </section>
+</div>

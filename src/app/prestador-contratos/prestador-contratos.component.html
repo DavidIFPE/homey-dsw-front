@@ -1,0 +1,89 @@
+<div class="contratos-page">
+  <section class="contratos-header">
+    <h2 class="contratos-title">Meus contratos</h2>
+    <p class="contratos-subtitle">
+      Aqui você vê os contratos enviados para seus serviços e pode aceitar aqueles
+      que fazem sentido para você.
+    </p>
+  </section>
+
+  @if (loading()) {
+    <p class="contratos-loading">Carregando contratos...</p>
+  } @else {
+    @if (errorMessage()) {
+      <p class="contratos-message contratos-message--error">
+        {{ errorMessage() }}
+      </p>
+    } @else if (successMessage()) {
+      <p class="contratos-message contratos-message--success">
+        {{ successMessage() }}
+      </p>
+    }
+
+    @if (contratos().length === 0 && !errorMessage()) {
+      <p class="contratos-empty">Nenhum contrato encontrado no momento.</p>
+    } @else {
+      <div class="contratos-list">
+        @for (contrato of contratos(); track contrato.id) {
+          <article class="contratos-card">
+            <header class="contratos-card__header">
+              <div>
+                <h3 class="contratos-card__title">
+                  {{ contrato.servicoTitulo || ('Serviço #' + contrato.servicoId) }}
+                </h3>
+                <p class="contratos-card__cliente">
+                Cliente: <strong>{{ contrato.clienteNome }}</strong>
+                </p>
+              </div>
+              <span class="contratos-card__status" [class.contratos-card__status--ativo]="contrato.status?.toUpperCase() === 'ATIVO'">
+                {{ contrato.status || 'PENDENTE' }}
+              </span>
+            </header>
+
+            <p class="contratos-card__info">
+              <strong>Início:</strong>
+              {{ formatData(contrato.dataInicio) }}
+            </p>
+            <p class="contratos-card__info">
+              <strong>Fim:</strong>
+              {{ formatData(contrato.dataFim) }}
+            </p>
+            <p class="contratos-card__info">
+              <strong>Valor final:</strong>
+              {{ contrato.valorFinal | currency:'BRL' }}
+            </p>
+
+            @if (canAceitar(contrato.status)) {
+              <button
+                type="button"
+                class="contratos-card__button"
+                (click)="aceitarContrato(contrato)"
+              >
+                Aceitar contrato
+              </button>
+            }
+
+            @if (canFinalizar(contrato.status)) {
+              <div class="contratos-card__actions">
+                <button
+                  type="button"
+                  class="contratos-card__button contratos-card__button--secondary"
+                  (click)="concluirContrato(contrato)"
+                >
+                  Marcar como concluído
+                </button>
+                <button
+                  type="button"
+                  class="contratos-card__button contratos-card__button--danger"
+                  (click)="cancelarContrato(contrato)"
+                >
+                  Cancelar contrato
+                </button>
+              </div>
+            }
+          </article>
+        }
+      </div>
+    }
+  }
+</div>

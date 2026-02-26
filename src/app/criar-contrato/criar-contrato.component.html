@@ -1,0 +1,59 @@
+<div class="criar-contrato-page">
+  <section class="criar-contrato-card">
+    <h2 class="criar-contrato-title">Fazer proposta</h2>
+    <p class="criar-contrato-subtitle">
+      Defina o período e o valor final que você está propondo para este serviço.
+    </p>
+
+    <form (ngSubmit)="onSubmit()" class="criar-contrato-form">
+      <div class="criar-contrato-field">
+        <label for="dataInicio">Data e hora de início</label>
+        <input
+          id="dataInicio"
+          type="datetime-local"
+          name="dataInicio"
+          [(ngModel)]="dataInicio"
+          required
+        />
+      </div>
+
+      <div class="criar-contrato-field">
+        <label for="dataFim">Data e hora de término</label>
+        <input
+          id="dataFim"
+          type="datetime-local"
+          name="dataFim"
+          [(ngModel)]="dataFim"
+          required
+        />
+      </div>
+
+      <div class="criar-contrato-field">
+        <label for="valorFinal">Valor final (R$)</label>
+        <input
+          id="valorFinal"
+          type="number"
+          name="valorFinal"
+          step="0.01"
+          min="0"
+          [(ngModel)]="valorFinal"
+          required
+        />
+      </div>
+
+      <button type="submit" class="criar-contrato-button" [disabled]="isSubmitting">
+        {{ isSubmitting ? 'Enviando...' : 'Enviar proposta' }}
+      </button>
+
+      @if (errorMessage) {
+        <p class="criar-contrato-message criar-contrato-message--error">
+          {{ errorMessage }}
+        </p>
+      } @else if (successMessage) {
+        <p class="criar-contrato-message criar-contrato-message--success">
+          {{ successMessage }}
+        </p>
+      }
+    </form>
+  </section>
+</div>

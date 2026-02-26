@@ -1,0 +1,43 @@
+<div class="login-page">
+	<form (ngSubmit)="onSubmit()" class="login-card">
+		<h2 class="login-title">Login</h2>
+		<div class="login-field">
+			<label for="email">Email</label>
+			<input
+				id="email"
+				name="email"
+				type="email"
+				[(ngModel)]="email"
+				required
+			/>
+		</div>
+		<div class="login-field">
+			<label for="password">Senha</label>
+			<input
+				id="password"
+				name="password"
+				type="password"
+				[(ngModel)]="password"
+				required
+			/>
+		</div>
+		<button type="submit" class="login-button">
+			Entrar
+		</button>
+		@if (errorMessage) {
+			<div class="login-message login-message--error">
+				{{ errorMessage }}
+			</div>
+		} @else if (successMessage) {
+			<div class="login-message login-message--success">
+				{{ successMessage }}
+			</div>
+		}
+		<div class="login-message">
+			Não tem conta?
+			<a routerLink="/registro-cliente">Cadastre-se como cliente</a>
+			ou
+			<a routerLink="/registro-prestador">Cadastre-se como prestador</a>
+		</div>
+	</form>
+</div>

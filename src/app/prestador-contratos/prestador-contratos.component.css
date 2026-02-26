@@ -1,0 +1,165 @@
+:host {
+  display: block;
+}
+
+.contratos-page {
+  max-width: 960px;
+  margin: 2rem auto;
+  padding: 0 1rem 2rem;
+}
+
+.contratos-header {
+  margin-bottom: 1.5rem;
+}
+
+.contratos-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.7rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 0.5rem;
+}
+
+.contratos-subtitle {
+  margin: 0.25rem 0 0;
+  font-size: 0.95rem;
+  color: var(--color-text-muted);
+}
+
+.contratos-loading {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.contratos-empty {
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.contratos-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 0.75rem;
+}
+
+.contratos-card {
+  background-color: var(--color-surface);
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--color-shadow-soft);
+  padding: 1.25rem 1.5rem;
+}
+
+.contratos-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.contratos-card__title {
+  margin: 0 0 0.25rem;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--color-primary-dark);
+}
+
+.contratos-card__cliente {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--color-text);
+}
+
+.contratos-card__cliente strong {
+  color: var(--color-text-muted);
+}
+
+.contratos-card__status {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  padding: 0.2rem 0.7rem;
+  border-radius: 999px;
+  background-color: var(--color-bg-alt);
+  border: 1px solid var(--color-border);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.contratos-card__status--ativo {
+  background-color: #e8ffef;
+  border-color: var(--color-success);
+  color: var(--color-success);
+}
+
+.contratos-card__info {
+  margin: 0.15rem 0;
+  font-size: 0.95rem;
+  color: var(--color-text);
+}
+
+.contratos-card__info strong {
+  color: var(--color-text-muted);
+}
+
+.contratos-card__button {
+  margin-top: 0.9rem;
+  padding: 0.55rem 1.3rem;
+  border-radius: 999px;
+  border: none;
+  background-color: var(--color-primary);
+  color: var(--color-surface);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.contratos-card__actions {
+  margin-top: 0.9rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.contratos-card__button--secondary {
+  background-color: var(--color-bg-alt);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+
+.contratos-card__button--secondary:hover {
+  background-color: var(--color-primary-dark);
+  color: var(--color-surface);
+}
+
+.contratos-card__button--danger {
+  background-color: #c53030;
+}
+
+.contratos-card__button--danger:hover {
+  background-color: #9b2c2c;
+}
+
+.contratos-card__button:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.contratos-card__button:active {
+  transform: translateY(1px);
+}
+
+.contratos-message {
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+}
+
+.contratos-message--error {
+  color: var(--color-error);
+}
+
+.contratos-message--success {
+  color: var(--color-success);
+}

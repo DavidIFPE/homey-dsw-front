@@ -1,0 +1,166 @@
+<section class="prestador-profile-page">
+  <h2 class="prestador-profile-title">Perfil do Prestador</h2>
+
+  @if (loading()) {
+    <p class="prestador-profile-loading">Carregando perfil...</p>
+  } @else if (prestador()) {
+    <article class="prestador-profile-card">
+      <header class="prestador-profile-header">
+        <div>
+          <h3 class="prestador-profile-name">{{ prestador()!.nome }}</h3>
+          <p class="prestador-profile-username">@{{ prestador()!.username }}</p>
+        </div>
+
+        @if (prestador()!.avaliacao !== null && prestador()!.avaliacao !== undefined) {
+          <div class="prestador-profile-rating">
+            <span class="prestador-profile-rating__label">Avaliação</span>
+            <span class="prestador-profile-rating__value">{{ prestador()!.avaliacao | number:'1.1-1' }}/5</span>
+          </div>
+        }
+      </header>
+
+      <section class="prestador-profile-section">
+        <h4 class="prestador-profile-section__title">Informações pessoais</h4>
+        <dl class="prestador-profile-list">
+          <div class="prestador-profile-list__item">
+            <dt>Nome</dt>
+            <dd>{{ prestador()!.nome }}</dd>
+          </div>
+          <div class="prestador-profile-list__item">
+            <dt>Email</dt>
+            <dd>{{ prestador()!.email }}</dd>
+          </div>
+          <div class="prestador-profile-list__item">
+            <dt>Telefone</dt>
+            <dd>{{ formatTelefone(prestador()!.telefone) }}</dd>
+          </div>
+          <div class="prestador-profile-list__item">
+            <dt>Data de nascimento</dt>
+            <dd>{{ prestador()!.dataNascimento | date:'dd/MM/yyyy' }}</dd>
+          </div>
+          <div class="prestador-profile-list__item">
+            <dt>CPF/CNPJ</dt>
+            <dd>{{ formatCpfCnpj(prestador()!.cpfCnpj) }}</dd>
+          </div>
+          <div class="prestador-profile-list__item">
+            <dt>Tipo</dt>
+            <dd>{{ prestador()!.tipo }}</dd>
+          </div>
+        </dl>
+      </section>
+
+      @if (prestador()!.endereco) {
+        <section class="prestador-profile-section">
+          <h4 class="prestador-profile-section__title">Endereço</h4>
+          <p class="prestador-profile-address">
+            {{ prestador()!.endereco!.logradouro }}, {{ prestador()!.endereco!.numero }}
+            @if (prestador()!.endereco!.complemento) {
+              <span> - {{ prestador()!.endereco!.complemento }}</span>
+            }
+            <br />
+            {{ prestador()!.endereco!.bairro }} - {{ prestador()!.endereco!.cidade }}/{{ prestador()!.endereco!.estado }}
+            <br />
+            CEP: {{ formatCep(prestador()!.endereco!.cep) }}
+          </p>
+        </section>
+      }
+
+      <section class="prestador-profile-section">
+        <h4 class="prestador-profile-section__title">Resumo de contratos</h4>
+
+        @if (contratosLoading()) {
+          <p class="prestador-profile-loading">Carregando resumo de contratos...</p>
+        } @else if (contratosError()) {
+          <p class="prestador-profile-error">{{ contratosError() }}</p>
+        } @else {
+          <dl class="prestador-profile-list">
+            <div class="prestador-profile-list__item">
+              <dt>Total de contratos</dt>
+              <dd>{{ contratosTotal() }}</dd>
+            </div>
+            <div class="prestador-profile-list__item">
+              <dt>Contratos ativos</dt>
+              <dd>{{ contratosAtivos() }}</dd>
+            </div>
+            <div class="prestador-profile-list__item">
+              <dt>Contratos concluídos</dt>
+              <dd>{{ contratosConcluidos() }}</dd>
+            </div>
+            <div class="prestador-profile-list__item">
+              <dt>Contratos cancelados</dt>
+              <dd>{{ contratosCancelados() }}</dd>
+            </div>
+            <div class="prestador-profile-list__item">
+              <dt>Total ganho em contratos concluídos</dt>
+              <dd>{{ contratosTotalGanho() | currency:'BRL' }}</dd>
+            </div>
+            <div class="prestador-profile-list__item">
+              <dt>Média por contrato concluído</dt>
+              <dd>{{ contratosMediaGanho() | currency:'BRL' }}</dd>
+            </div>
+          </dl>
+          <section class="prestador-profile-section prestador-profile-charts">
+            <h4 class="prestador-profile-section__title">Gráficos de contratos</h4>
+            <div class="prestador-profile-charts__grid">
+              <div class="prestador-profile-chart-card">
+                <h5>Contratos por status</h5>
+                <div class="prestador-profile-chart-card__canvas">
+                  <canvas
+                    baseChart
+                    [data]="statusChartData"
+                    [type]="'doughnut'"
+                    [options]="statusChartOptions"
+                  ></canvas>
+                </div>
+              </div>
+
+              <div class="prestador-profile-chart-card">
+                <h5>Ganhos em contratos</h5>
+                <div class="prestador-profile-chart-card__canvas">
+                  <canvas
+                    baseChart
+                    [data]="revenueChartData"
+                    [type]="'bar'"
+                    [options]="revenueChartOptions"
+                  ></canvas>
+                </div>
+              </div>
+
+              <div class="prestador-profile-chart-card">
+                <h5>Faturamento por mês</h5>
+                <div class="prestador-profile-chart-card__canvas">
+                  <canvas
+                    baseChart
+                    [data]="monthlyRevenueChartData"
+                    [type]="'line'"
+                    [options]="monthlyRevenueChartOptions"
+                  ></canvas>
+                </div>
+              </div>
+
+              <div class="prestador-profile-chart-card">
+                <h5>Contratos concluídos por mês</h5>
+                <div class="prestador-profile-chart-card__canvas">
+                  <canvas
+                    baseChart
+                    [data]="closedContractsCountChartData"
+                    [type]="'bar'"
+                    [options]="closedContractsCountChartOptions"
+                  ></canvas>
+                </div>
+              </div>
+            </div>
+          </section>
+        }
+      </section>
+
+      <footer class="prestador-profile-footer">
+        <small class="prestador-profile-meta">
+          ID: {{ prestador()!.id }} · Cadastro em: {{ prestador()!.dataCriacao | date:'short' }}
+        </small>
+      </footer>
+    </article>
+  } @else if (errorMessage()) {
+    <p class="prestador-profile-error">{{ errorMessage() }}</p>
+  }
+</section>

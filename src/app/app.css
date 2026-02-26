@@ -1,0 +1,15 @@
+:host {
+	display: block;
+	min-height: 100vh;
+	background-color: var(--color-bg);
+	color: var(--color-text);
+}
+
+app-header {
+	display: block;
+	margin-bottom: 1.5rem;
+}
+
+router-outlet {
+	display: block;
+}

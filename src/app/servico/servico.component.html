@@ -1,0 +1,110 @@
+<section class="servico-page">
+    <h2 class="servico-title">Serviços</h2>
+
+    <div class="servico-filtro">
+        <label class="servico-filtro__label">Filtrar serviços por categoria</label>
+        <div class="servico-categorias-filtro">
+            @for (c of categorias(); track c.id) {
+                <button
+                    type="button"
+                    class="servico-categoria-opcao"
+                    (click)="categoriaSelecionada = c.nome; buscarPorCategoria()"
+                    [disabled]="carregando()"
+                >
+                    {{ c.nome }}
+                </button>
+            }
+        </div>
+    </div>
+
+    <div class="servico-filtro">
+        <label for="cep" class="servico-filtro__label">Buscar serviços por CEP</label>
+        <div class="servico-filtro__controls">
+            <input
+                id="cep"
+                type="text"
+                maxlength="8"
+                inputmode="numeric"
+                class="servico-filtro__input"
+                placeholder="Digite o CEP (ex: 50950005)"
+                [(ngModel)]="cepPesquisa"
+                (keyup.enter)="buscarServicosProximos()"
+            >
+            <button
+                type="button"
+                class="servico-filtro__button"
+                (click)="buscarServicosProximos()"
+                [disabled]="carregando() || !cepPesquisa"
+            >
+                Buscar
+            </button>
+        </div>
+    </div>
+
+    @if (erro()) {
+        <p class="servico-erro">{{ erro() }}</p>
+    }
+
+    @if (carregando()) {
+        <p class="servico-loading">Carregando serviços...</p>
+    }
+
+    @if (servicos().length === 0) {
+        <p class="servico-empty">Nenhum serviço encontrado.</p>
+        <pre class="servico-debug">{{ servicos() | json }}</pre>
+    } @else {
+        <div class="servico-list">
+            @for (servico of servicos(); track servico.id) {
+                <article class="servico-card">
+                    <div class="servico-card__header">
+                        <h3 class="servico-card__title">{{ servico.titulo }}</h3>
+                        @if(servico.distanciaKm !== undefined) {
+                            <h3 class="servico-card__distance">{{ servico.distanciaKm }}km de distância </h3>    
+                        }
+                    </div>
+
+                    <p class="servico-card__descricao">{{ servico.descricao }}</p>
+
+                    <p class="servico-card__info">
+                        <strong>Prestador:</strong>
+                        <a class="servico-prestador-link" [routerLink]="['/prestador', servico.prestadorId]">
+                            {{ servico.prestadorNome }}
+                        </a>
+                    </p>
+
+                    <p class="servico-card__info">
+                        <strong>Preço base:</strong> {{ servico.precoBase | currency:'BRL' }}
+                    </p>
+
+                    <p class="servico-card__info">
+                        <strong>Status:</strong> {{ servico.disponivel ? 'Disponível' : 'Indisponível' }}
+                    </p>
+
+                    @if (isCliente() && servico.disponivel) {
+                        <p class="servico-card__actions">
+                            <a
+                                class="servico-card__button"
+                                [routerLink]="['/servicos', servico.id, 'proposta']"
+                            >
+                                Fazer proposta
+                            </a>
+                        </p>
+                    }
+
+                    @if (servico.categorias?.length) {
+                        <p class="servico-categorias">
+                            <strong>Categorias:</strong>
+                            @for (c of servico.categorias; track c.id) {
+                                <span class="servico-categoria">{{ c.nome }}</span>
+                            }
+                        </p>
+                    }
+
+                    <small class="servico-meta">
+                        Criado em: {{ servico.dataCriacao | date:'short' }}
+                    </small>
+                </article>
+            }
+        </div>
+    }
+</section>

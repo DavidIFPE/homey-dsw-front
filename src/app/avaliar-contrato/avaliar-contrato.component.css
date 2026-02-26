@@ -1,0 +1,363 @@
+:host {
+  display: block;
+}
+
+.avaliar-contrato-page {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 0 1rem 2rem;
+}
+
+.avaliar-contrato-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.avaliar-contrato-back {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0;
+  
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.avaliar-contrato-title {
+  margin: 0;
+  font-size: 1.7rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 0.5rem;
+  flex: 1;
+}
+
+.avaliar-contrato-loading,
+.avaliar-contrato-message {
+  margin: 0.5rem 0;
+  font-size: 0.95rem;
+}
+
+.avaliar-contrato-message--error {
+  color: var(--color-error);
+  background-color: #fee2e2;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border-left: 4px solid var(--color-error);
+}
+
+.avaliar-contrato-message--success {
+  color: var(--color-success);
+  background-color: #dcfce7;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border-left: 4px solid var(--color-success);
+}
+
+.avaliar-contrato-form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.avaliar-contrato-info {
+  background-color: var(--color-surface);
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-border);
+  padding: 1.5rem;
+}
+
+.avaliar-contrato-info__title {
+  margin: 0 0 1rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-primary-dark);
+}
+
+.avaliar-contrato-info__detail {
+  margin: 0.5rem 0;
+  font-size: 0.95rem;
+  color: var(--color-text);
+}
+
+.avaliar-contrato-visualizacao {
+  background-color: var(--color-surface);
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-border);
+  padding: 1.5rem;
+}
+
+.avaliar-contrato-visualizacao__title {
+  margin: 0 0 1.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.avaliar-contrato-visualizacao__label {
+  margin: 1rem 0 0.5rem;
+  font-weight: 600;
+  color: var(--color-text);
+  font-size: 0.95rem;
+}
+
+.avaliar-contrato-visualizacao__rating {
+  margin-bottom: 1.5rem;
+}
+
+.avaliar-contrato-visualizacao__comment {
+  margin-bottom: 1.5rem;
+}
+
+.avaliar-contrato-visualizacao__text {
+  margin: 0.5rem 0 0;
+  padding: 1rem;
+  background-color: var(--color-surface-secondary);
+  border-radius: 0.5rem;
+  color: var(--color-text);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.avaliar-contrato-visualizacao__fotos {
+  margin-bottom: 1.5rem;
+}
+
+.avaliar-contrato-visualizacao__fotos .avaliar-contrato-preview {
+  max-width: 300px;
+  margin-top: 0.5rem;
+}
+
+.avaliar-contrato-visualizacao__sem-foto {
+  margin: 1rem 0;
+  padding: 1rem;
+  background-color: var(--color-surface-secondary);
+  border-radius: 0.5rem;
+  color: var(--color-text-muted);
+  font-style: italic;
+  text-align: center;
+}
+
+.avaliar-contrato-visualizacao__data {
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  border-top: 1px solid var(--color-border);
+  padding-top: 1rem;
+}
+
+.avaliar-contrato-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.avaliar-contrato-fieldset {
+  background-color: var(--color-surface);
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-border);
+  padding: 1.5rem;
+  margin: 0;
+}
+
+.avaliar-contrato-legend {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  margin-bottom: 1rem;
+}
+
+.avaliar-contrato-field {
+  margin-bottom: 1.5rem;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.avaliar-contrato-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--color-text);
+  font-size: 0.95rem;
+}
+
+.avaliar-contrato-rating {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.avaliar-contrato-star {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: #cfcfcf;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s;
+  
+  &:hover {
+    color: #fbbf24;
+  }
+  
+  &.avaliar-contrato-star--filled {
+    color: #f59e0b;
+  }
+}
+
+.avaliar-contrato-field__hint {
+  margin: 0.5rem 0 0;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.avaliar-contrato-textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: var(--color-text);
+  resize: vertical;
+  min-height: 120px;
+  
+  &:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+}
+
+.avaliar-contrato-file-input {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.avaliar-contrato-input-hidden {
+  display: none;
+}
+
+.avaliar-contrato-file-label {
+  display: block;
+  padding: 1.5rem;
+  border: 2px dashed var(--color-border);
+  border-radius: 0.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--color-text-muted);
+  font-weight: 500;
+  
+  &:hover {
+    border-color: var(--color-primary);
+    background-color: rgba(59, 130, 246, 0.05);
+    color: var(--color-primary);
+  }
+}
+
+.avaliar-contrato-previews {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.avaliar-contrato-preview-single {
+  margin-top: 1rem;
+}
+
+.avaliar-contrato-preview-single .avaliar-contrato-preview {
+  max-width: 250px;
+}
+
+.avaliar-contrato-preview {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-border);
+}
+
+.avaliar-contrato-preview__img {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  display: block;
+}
+
+.avaliar-contrato-preview__remove {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  width: 24px;
+  height: 24px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  color: var(--color-error);
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+  
+  &:hover {
+    background-color: var(--color-error);
+    color: white;
+  }
+}
+
+.avaliar-contrato-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.avaliar-contrato-button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  
+  background-color: var(--color-primary);
+  color: white;
+  
+  &:hover:not(:disabled) {
+    background-color: var(--color-primary-dark);
+  }
+  
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.avaliar-contrato-button--secondary {
+  background-color: transparent;
+  color: var(--color-primary);
+  border: 1px solid var(--color-border);
+  
+  &:hover:not(:disabled) {
+    background-color: var(--color-surface-secondary);
+    border-color: var(--color-primary);
+  }
+}
