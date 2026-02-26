@@ -150,6 +150,13 @@ export class PrestadorProfile implements OnInit {
         position: 'bottom',
       },
     },
+    scales: {
+      y: {
+        ticks: {
+          stepSize: 1,
+        },
+      },
+    },
     maintainAspectRatio: false,
   };
 
