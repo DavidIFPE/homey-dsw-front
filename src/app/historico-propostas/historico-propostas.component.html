@@ -1,0 +1,136 @@
+<section class="historico-propostas-page">
+  <h2 class="historico-propostas-title">Histórico de Propostas</h2>
+
+  @if (loading()) {
+    <p class="historico-propostas-loading">Carregando propostas...</p>
+  } @else if (errorMessage()) {
+    <p class="historico-propostas-error">{{ errorMessage() }}</p>
+  } @else if (propostas().length === 0) {
+    <p class="historico-propostas-empty">Nenhuma proposta encontrada para este contrato.</p>
+  } @else {
+    <div class="propostas-list">
+      @for (proposta of propostas(); track proposta.id) {
+        <article class="proposta-card">
+          <header class="proposta-card__header">
+            <div>
+              <h3 class="proposta-card__title">Proposta #{{ proposta.id }}</h3>
+              <p class="proposta-card__data">
+                {{ formatarData(proposta.dataCriacao) }}
+              </p>
+            </div>
+            <span class="proposta-card__status" [ngClass]="getStatusClass(proposta.status)">
+              {{ proposta.status }}
+            </span>
+          </header>
+
+          <div class="proposta-card__body">
+            <div class="proposta-card__valor">
+              <strong>Valor:</strong>
+              <span>{{ proposta.valor | currency:'BRL' }}</span>
+            </div>
+
+            @if (proposta.mensagem) {
+              <div class="proposta-card__mensagem">
+                <strong>Mensagem:</strong>
+                <p>{{ proposta.mensagem }}</p>
+              </div>
+            }
+
+            <div class="proposta-card__prazo">
+              <strong>Prazo de resposta:</strong>
+              <span>{{ formatarData(proposta.prazoResposta) }}</span>
+            </div>
+
+            @if (proposta.propostaPaiId) {
+              <div class="proposta-card__info">
+                <em>Esta é uma contraproposta à proposta #{{ proposta.propostaPaiId }}</em>
+              </div>
+            }
+          </div>
+
+          <footer class="proposta-card__actions">
+            @if (podeAceitar(proposta)) {
+              <button
+                type="button"
+                class="proposta-card__button proposta-card__button--primary"
+                (click)="aceitarProposta(proposta)"
+              >
+                Aceitar
+              </button>
+            }
+
+            @if (podeContrapropor(proposta)) {
+              <button
+                type="button"
+                class="proposta-card__button proposta-card__button--secondary"
+                (click)="abrirContraproposta(proposta.id)"
+              >
+                Contrapropor
+              </button>
+            }
+
+            @if (proposta.status === 'PENDENTE') {
+              <button
+                type="button"
+                class="proposta-card__button proposta-card__button--danger"
+                (click)="recusarProposta(proposta)"
+              >
+                Recusar
+              </button>
+            }
+          </footer>
+
+          @if (contrapropostaAberta === proposta.id) {
+            <div class="contraproposta-form">
+              <h4>Fazer contraproposta</h4>
+
+              <div class="proposta-field">
+                <label for="novoValor">Novo valor (R$)</label>
+                <input
+                  id="novoValor"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  [(ngModel)]="novoValor"
+                  placeholder="Ex: 150.00"
+                />
+              </div>
+
+              <div class="proposta-field">
+                <label for="novaMensagem">Mensagem (opcional)</label>
+                <textarea
+                  id="novaMensagem"
+                  rows="3"
+                  [(ngModel)]="novaMensagem"
+                  placeholder="Explique sua contraproposta..."
+                ></textarea>
+              </div>
+
+              <div class="contraproposta-form__actions">
+                <button
+                  type="button"
+                  class="proposta-card__button proposta-card__button--primary"
+                  (click)="enviarContraproposta()"
+                  [disabled]="isSubmittingContraproposta"
+                >
+                  {{ isSubmittingContraproposta ? 'Enviando...' : 'Enviar contraproposta' }}
+                </button>
+                <button
+                  type="button"
+                  class="proposta-card__button proposta-card__button--secondary"
+                  (click)="fecharContraproposta()"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          }
+        </article>
+      }
+    </div>
+  }
+
+  @if (successMessage()) {
+    <p class="historico-propostas-success">{{ successMessage() }}</p>
+  }
+</section>

@@ -9,15 +9,18 @@ import { RegistroCliente } from './registro-cliente/registro-cliente';
 import { LandingHome } from './landing-home/landing-home.component';
 import { PrestadorContratos } from './prestador-contratos/prestador-contratos';
 import { CriarContrato } from './criar-contrato/criar-contrato';
+import { Proposta } from './proposta/proposta';
+import { HistoricoPropostas } from './historico-propostas/historico-propostas';
 
 export const routes: Routes = [
 	{ path: '', component: LandingHome, pathMatch: 'full' },
 	{ path: 'login', component: Login },
 	{ path: 'servicos', component: Servico },
 	{ path: 'servicos/novo', component: CriarServico },
+	{ path: 'servicos/:id/proposta', component: Proposta },
 	{ path: 'prestador/:id', component: PrestadorProfile },
 	{ path: 'registro-prestador', component: RegistroPrestador },
 	{ path: 'registro-cliente', component: RegistroCliente },
 	{ path: 'contratos', component: PrestadorContratos },
-	{ path: 'servicos/:id/proposta', component: CriarContrato },
+	{ path: 'contratos/:contratoId/propostas', component: HistoricoPropostas },
 ];

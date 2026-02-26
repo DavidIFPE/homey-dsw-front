@@ -1,0 +1,77 @@
+<div class="proposta-page">
+  <section class="proposta-card">
+    <h2 class="proposta-title">Fazer proposta</h2>
+    <p class="proposta-subtitle">
+      Defina o valor e o prazo de resposta para sua proposta.
+    </p>
+
+    <article class="proposta-info">
+      <div class="proposta-info__item">
+        <strong>Serviço:</strong>
+        <span>{{ servicoTitulo() }}</span>
+      </div>
+      <div class="proposta-info__item">
+        <strong>Preço base:</strong>
+        <span>{{ precoBase() | currency:'BRL' }}</span>
+      </div>
+    </article>
+
+    <form (ngSubmit)="onSubmit()" class="proposta-form">
+      <div class="proposta-field">
+        <label for="valor">Valor da proposta (R$) *</label>
+        <input
+          id="valor"
+          type="number"
+          name="valor"
+          step="0.01"
+          min="0"
+          [ngModel]="valor()"
+          (ngModelChange)="valor.set($event)"
+          required
+        />
+        <small>Você pode propor um valor diferente do preço base</small>
+      </div>
+
+      <div class="proposta-field">
+        <label for="mensagem">Mensagem (opcional)</label>
+        <textarea
+          id="mensagem"
+          name="mensagem"
+          rows="4"
+          placeholder="Descreva detalhes da sua proposta, disponibilidade, etc."
+          [(ngModel)]="mensagem"
+        ></textarea>
+      </div>
+
+      <div class="proposta-field">
+        <label for="prazoResposta">Prazo para resposta *</label>
+        <input
+          id="prazoResposta"
+          type="datetime-local"
+          name="prazoResposta"
+          [(ngModel)]="prazoResposta"
+          required
+        />
+        <small>Até quando você espera uma resposta</small>
+      </div>
+
+      <button
+        type="submit"
+        class="proposta-button"
+        [disabled]="isSubmitting()"
+      >
+        {{ isSubmitting() ? 'Enviando...' : 'Enviar proposta' }}
+      </button>
+
+      @if (errorMessage()) {
+        <p class="proposta-message proposta-message--error">
+          {{ errorMessage() }}
+        </p>
+      } @else if (successMessage()) {
+        <p class="proposta-message proposta-message--success">
+          {{ successMessage() }}
+        </p>
+      }
+    </form>
+  </section>
+</div>

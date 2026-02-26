@@ -85,6 +85,7 @@
                             <a
                                 class="servico-card__button"
                                 [routerLink]="['/servicos', servico.id, 'proposta']"
+                                [state]="{ servico: servico }"
                             >
                                 Fazer proposta
                             </a>

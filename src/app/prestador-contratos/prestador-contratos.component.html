@@ -63,6 +63,13 @@
               </button>
             }
 
+            <a
+              [routerLink]="['/contratos', contrato.id, 'propostas']"
+              class="contratos-card__button contratos-card__button--secondary"
+            >
+              Ver propostas
+            </a>
+
             @if (canFinalizar(contrato.status)) {
               <div class="contratos-card__actions">
                 <button
