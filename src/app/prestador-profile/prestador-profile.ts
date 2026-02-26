@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { BaseChartDirective } from 'ng2-charts';
+import { ChartConfiguration, ChartData } from 'chart.js';
 import api from '../services/api';
 
 interface EnderecoDTO {
@@ -36,12 +38,14 @@ interface ContratoResumoDTO {
   id: number;
   valorFinal: number;
   status: string;
+  dataInicio?: string;
+  dataFim?: string;
 }
 
 @Component({
   selector: 'app-prestador-profile',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, BaseChartDirective],
   templateUrl: './prestador-profile.component.html',
   styleUrl: './prestador-profile.css',
 })
@@ -61,6 +65,93 @@ export class PrestadorProfile implements OnInit {
   contratosAtivos = signal(0);
   contratosConcluidos = signal(0);
   contratosCancelados = signal(0);
+
+  // Configurações dos gráficos
+  statusChartData: ChartData<'doughnut'> = {
+    labels: ['Ativos', 'Concluídos', 'Cancelados'],
+    datasets: [
+      {
+        data: [0, 0, 0],
+        backgroundColor: ['#3b82f6', '#22c55e', '#ef4444'],
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  statusChartOptions: ChartConfiguration<'doughnut'>['options'] = {
+    plugins: {
+      legend: {
+        position: 'bottom',
+      },
+    },
+    maintainAspectRatio: false,
+  };
+
+  revenueChartData: ChartData<'bar'> = {
+    labels: ['Total ganho', 'Média por contrato'],
+    datasets: [
+      {
+        data: [0, 0],
+        backgroundColor: ['#22c55e', '#3b82f6'],
+      },
+    ],
+  };
+
+  revenueChartOptions: ChartConfiguration<'bar'>['options'] = {
+    responsive: true,
+    plugins: {
+      legend: {
+        display: false,
+      },
+    },
+    maintainAspectRatio: false,
+  };
+  // Faturamento por período (mês)
+  monthlyRevenueChartData: ChartData<'line'> = {
+    labels: [],
+    datasets: [
+      {
+        data: [],
+        label: 'Faturamento por mês',
+        borderColor: '#22c55e',
+        backgroundColor: 'rgba(34, 197, 94, 0.15)',
+        fill: true,
+        tension: 0.3,
+      },
+    ],
+  };
+
+  monthlyRevenueChartOptions: ChartConfiguration<'line'>['options'] = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'bottom',
+      },
+    },
+    maintainAspectRatio: false,
+  };
+
+  // Quantidade de contratos fechados (concluídos) por mês
+  closedContractsCountChartData: ChartData<'bar'> = {
+    labels: [],
+    datasets: [
+      {
+        data: [],
+        label: 'Contratos concluídos por mês',
+        backgroundColor: '#3b82f6',
+      },
+    ],
+  };
+
+  closedContractsCountChartOptions: ChartConfiguration<'bar'>['options'] = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'bottom',
+      },
+    },
+    maintainAspectRatio: false,
+  };
 
   constructor(private route: ActivatedRoute) {
     this.prestadorId = Number(this.route.snapshot.paramMap.get('id'));
@@ -104,12 +195,54 @@ export class PrestadorProfile implements OnInit {
       let concluidos = 0;
       let ativos = 0;
       let cancelados = 0;
+      const faturamentoPorMes = new Map<
+        string,
+        {
+          label: string;
+          total: number;
+        }
+      >();
+
+      const contratosConcluidosPorMes = new Map<
+        string,
+        {
+          label: string;
+          count: number;
+        }
+      >();
 
       for (const c of lista) {
         const status = (c.status || '').toUpperCase();
         if (status === 'CONCLUIDO') {
           concluidos++;
           totalGanho += c.valorFinal || 0;
+
+          const dateString = c.dataFim || c.dataInicio;
+          if (dateString) {
+            const date = new Date(dateString);
+            if (!Number.isNaN(date.getTime())) {
+              const year = date.getFullYear();
+              const month = String(date.getMonth() + 1).padStart(2, '0');
+              const key = `${year}-${month}`;
+              const label = `${month}/${year}`;
+
+              const countEntry = contratosConcluidosPorMes.get(key) ?? {
+                label,
+                count: 0,
+              };
+              countEntry.count += 1;
+              contratosConcluidosPorMes.set(key, countEntry);
+
+              if (c.valorFinal) {
+                const existing = faturamentoPorMes.get(key) ?? {
+                  label,
+                  total: 0,
+                };
+                existing.total += c.valorFinal || 0;
+                faturamentoPorMes.set(key, existing);
+              }
+            }
+          }
         } else if (status === 'ATIVO') {
           ativos++;
         } else if (status === 'CANCELADO') {
@@ -123,6 +256,58 @@ export class PrestadorProfile implements OnInit {
       this.contratosConcluidos.set(concluidos);
       this.contratosCancelados.set(cancelados);
       this.contratosMediaGanho.set(concluidos > 0 ? totalGanho / concluidos : 0);
+
+      // Atualiza dados dos gráficos
+      this.statusChartData = {
+        ...this.statusChartData,
+        datasets: [
+          {
+            ...this.statusChartData.datasets[0],
+            data: [ativos, concluidos, cancelados],
+          },
+        ],
+      };
+
+      this.revenueChartData = {
+        ...this.revenueChartData,
+        datasets: [
+          {
+            ...this.revenueChartData.datasets[0],
+            data: [totalGanho, concluidos > 0 ? totalGanho / concluidos : 0],
+          },
+        ],
+      };
+
+      // Atualiza gráficos mensais (faturamento e quantidade de contratos concluídos)
+      const sortedMonths = Array.from(contratosConcluidosPorMes.entries()).sort(([a], [b]) =>
+        a.localeCompare(b),
+      );
+
+      const monthLabels = sortedMonths.map(([, value]) => value.label);
+      const revenueValues = sortedMonths.map(([key]) => faturamentoPorMes.get(key)?.total ?? 0);
+      const closedContractsValues = sortedMonths.map(([, value]) => value.count);
+
+      this.monthlyRevenueChartData = {
+        ...this.monthlyRevenueChartData,
+        labels: monthLabels,
+        datasets: [
+          {
+            ...this.monthlyRevenueChartData.datasets[0],
+            data: revenueValues,
+          },
+        ],
+      };
+
+      this.closedContractsCountChartData = {
+        ...this.closedContractsCountChartData,
+        labels: monthLabels,
+        datasets: [
+          {
+            ...this.closedContractsCountChartData.datasets[0],
+            data: closedContractsValues,
+          },
+        ],
+      };
     } catch (error: any) {
       console.error('Erro ao carregar resumo de contratos do prestador', error);
       this.contratosError.set('Não foi possível carregar o resumo de contratos.');

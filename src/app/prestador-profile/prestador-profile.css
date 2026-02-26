@@ -126,3 +126,33 @@
   font-size: 0.8rem;
   color: var(--color-text-muted);
 }
+
+.prestador-profile-charts {
+  margin-top: 1.5rem;
+}
+
+.prestador-profile-charts__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+.prestador-profile-chart-card {
+  background-color: var(--color-bg-alt);
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-border);
+  padding: 0.75rem 1rem 1rem;
+}
+
+.prestador-profile-chart-card h5 {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.prestador-profile-chart-card__canvas {
+  position: relative;
+  width: 100%;
+  height: 220px;
+}
