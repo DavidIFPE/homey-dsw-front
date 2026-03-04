@@ -23,7 +23,7 @@ jobs:
           run: npm ci
 
         - name: Build Production
-          run: npm run build --configuration production
+          run: npm run build --configuration homey-dsw-front
 
         - name: Upload build artifact
           uses: actions/upload-artifact@v4
