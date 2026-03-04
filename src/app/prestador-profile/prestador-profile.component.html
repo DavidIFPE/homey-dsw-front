@@ -99,6 +99,58 @@
               <dd>{{ contratosMediaGanho() | currency:'BRL' }}</dd>
             </div>
           </dl>
+          <section class="prestador-profile-section prestador-profile-charts">
+            <h4 class="prestador-profile-section__title">Gráficos de contratos</h4>
+            <div class="prestador-profile-charts__grid">
+              <div class="prestador-profile-chart-card">
+                <h5>Contratos por status</h5>
+                <div class="prestador-profile-chart-card__canvas">
+                  <canvas
+                    baseChart
+                    [data]="statusChartData"
+                    [type]="'doughnut'"
+                    [options]="statusChartOptions"
+                  ></canvas>
+                </div>
+              </div>
+
+              <div class="prestador-profile-chart-card">
+                <h5>Ganhos em contratos</h5>
+                <div class="prestador-profile-chart-card__canvas">
+                  <canvas
+                    baseChart
+                    [data]="revenueChartData"
+                    [type]="'bar'"
+                    [options]="revenueChartOptions"
+                  ></canvas>
+                </div>
+              </div>
+
+              <div class="prestador-profile-chart-card">
+                <h5>Faturamento por mês</h5>
+                <div class="prestador-profile-chart-card__canvas">
+                  <canvas
+                    baseChart
+                    [data]="monthlyRevenueChartData"
+                    [type]="'line'"
+                    [options]="monthlyRevenueChartOptions"
+                  ></canvas>
+                </div>
+              </div>
+
+              <div class="prestador-profile-chart-card">
+                <h5>Contratos concluídos por mês</h5>
+                <div class="prestador-profile-chart-card__canvas">
+                  <canvas
+                    baseChart
+                    [data]="closedContractsCountChartData"
+                    [type]="'bar'"
+                    [options]="closedContractsCountChartOptions"
+                  ></canvas>
+                </div>
+              </div>
+            </div>
+          </section>
         }
       </section>
 
