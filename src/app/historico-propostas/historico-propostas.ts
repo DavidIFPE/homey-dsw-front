@@ -3,6 +3,7 @@ import { Component, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import api from '../services/api';
+import { getUserFromToken } from '../services/authService';
 
 interface PropostaResponseDTO {
   id: number;
@@ -35,6 +36,7 @@ export class HistoricoPropostas implements OnInit {
   novoValor = '';
   novaMensagem = '';
   isSubmittingContraproposta = false;
+  usuarioIdAtual = getUserFromToken()?.id ?? null;
 
   constructor(private route: ActivatedRoute, private router: Router) {
     this.contratoId.set(Number(this.route.snapshot.paramMap.get('contratoId')));
@@ -168,11 +170,24 @@ export class HistoricoPropostas implements OnInit {
   }
 
   podeAceitar(proposta: PropostaResponseDTO): boolean {
-    return proposta.status === 'PENDENTE' || proposta.status === 'CONTRAPROPOSTA';
+    return (
+      (proposta.status === 'PENDENTE' || proposta.status === 'CONTRAPROPOSTA') &&
+      proposta.destinatarioId === this.usuarioIdAtual
+    );
   }
-
+  
   podeContrapropor(proposta: PropostaResponseDTO): boolean {
-    return proposta.status === 'PENDENTE' || proposta.status === 'CONTRAPROPOSTA';
+    return (
+      (proposta.status === 'PENDENTE' || proposta.status === 'CONTRAPROPOSTA') &&
+      proposta.destinatarioId === this.usuarioIdAtual
+    );
+  }
+  
+  podeRecusar(proposta: PropostaResponseDTO): boolean {
+    return (
+      (proposta.status === 'PENDENTE' || proposta.status === 'CONTRAPROPOSTA') &&
+      proposta.destinatarioId === this.usuarioIdAtual
+    );
   }
 
   formatarData(data: Date): string {
@@ -182,4 +197,11 @@ export class HistoricoPropostas implements OnInit {
   getStatusClass(status: string): string {
     return `proposta-status--${status.toLowerCase()}`;
   }
+
+  
+  // Helpers visuais
+  ehVoce(idUsuario: number): boolean {
+    return this.usuarioIdAtual != null && idUsuario === this.usuarioIdAtual;
+  }
+
 }
