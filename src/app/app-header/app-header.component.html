@@ -20,9 +20,6 @@
                 Login
             </a>
         } @else {
-            @if (hasProfile && isPrestador) {
-                <a [routerLink]="['/prestador', userId]" routerLinkActive="active" class="app-header__link">
-                    Meu perfil
             <a routerLink="/perfil" routerLinkActive="active" class="app-header__link">
                  Perfil
             </a>
