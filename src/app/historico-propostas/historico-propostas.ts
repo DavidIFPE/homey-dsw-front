@@ -171,22 +171,19 @@ export class HistoricoPropostas implements OnInit {
 
   podeAceitar(proposta: PropostaResponseDTO): boolean {
     return (
-      (proposta.status === 'PENDENTE' || proposta.status === 'CONTRAPROPOSTA') &&
-      proposta.destinatarioId === this.usuarioIdAtual
+      (proposta.status === 'PENDENTE' || proposta.status === 'CONTRAPROPOSTA')// && proposta.destinatarioId === this.usuarioIdAtual
     );
   }
   
   podeContrapropor(proposta: PropostaResponseDTO): boolean {
     return (
-      (proposta.status === 'PENDENTE' || proposta.status === 'CONTRAPROPOSTA') &&
-      proposta.destinatarioId === this.usuarioIdAtual
+      (proposta.status === 'PENDENTE' || proposta.status === 'CONTRAPROPOSTA')// && proposta.destinatarioId === this.usuarioIdAtual
     );
   }
   
   podeRecusar(proposta: PropostaResponseDTO): boolean {
     return (
-      (proposta.status === 'PENDENTE' || proposta.status === 'CONTRAPROPOSTA') &&
-      proposta.destinatarioId === this.usuarioIdAtual
+      (proposta.status === 'PENDENTE' || proposta.status === 'CONTRAPROPOSTA')// && proposta.destinatarioId === this.usuarioIdAtual
     );
   }
 
