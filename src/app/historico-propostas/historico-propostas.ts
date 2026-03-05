@@ -198,6 +198,12 @@ export class HistoricoPropostas implements OnInit {
     return `proposta-status--${status.toLowerCase()}`;
   }
 
+    
+  labelUsuario(idUsuario: number): string {
+    return this.ehVoce(idUsuario) ? 'Você' : `Usuário #${idUsuario}`;
+  }
+
+
   
   // Helpers visuais
   ehVoce(idUsuario: number): boolean {

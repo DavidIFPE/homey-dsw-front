@@ -23,29 +23,21 @@
             </span>
           </header>
 
-          <div class="proposta-card__body">
-            <!-- ✅ Quem enviou / para quem -->
-            <div class="proposta-card__participantes">
-              <div class="linha-participante">
-                <strong>Remetente:</strong>
-                <span>
-                  {{ ehVoce(proposta.remetenteId) ? 'Você' : ('Usuário #' + proposta.remetenteId) }}
-                </span>
-                @if (ehVoce(proposta.remetenteId)) {
-                  <span class="chip chip--info">Você</span>
-                }
-              </div>
-
-              <div class="linha-participante">
-                <strong>Destinatário:</strong>
-                <span>
-                  {{ ehVoce(proposta.destinatarioId) ? 'Você' : ('Usuário #' + proposta.destinatarioId) }}
-                </span>
-                @if (ehVoce(proposta.destinatarioId)) {
-                  <span class="chip chip--success">Para você</span>
-                }
-              </div>
+          
+          <div class="proposta-card__participantes">
+            <div class="linha-participante">
+              <strong>Remetente:</strong>
+              <span>{{ labelUsuario(proposta.remetenteId) }}</span>
+              <span class="chip chip--info">Remetente</span>
             </div>
+
+            <div class="linha-participante">
+              <strong>Destinatário:</strong>
+              <span>{{ labelUsuario(proposta.destinatarioId) }}</span>
+              <span class="chip chip--success">Destinatário</span>
+            </div>
+          </div>
+
 
             <div class="proposta-card__valor">
               <strong>Valor:</strong>
