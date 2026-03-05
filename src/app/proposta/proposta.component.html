@@ -1,9 +1,7 @@
 <div class="proposta-page">
   <section class="proposta-card">
     <h2 class="proposta-title">Fazer proposta</h2>
-    <p class="proposta-subtitle">
-      Defina o valor e o prazo de resposta para sua proposta.
-    </p>
+    <p class="proposta-subtitle">Defina o valor e o prazo de resposta para sua proposta.</p>
 
     <article class="proposta-info">
       <div class="proposta-info__item">
@@ -16,7 +14,7 @@
       </div>
     </article>
 
-    <form (ngSubmit)="onSubmit()" class="proposta-form">
+    <form (ngSubmit)="onSubmit()" class="proposta-form" novalidate>
       <div class="proposta-field">
         <label for="valor">Valor da proposta (R$) *</label>
         <input
@@ -24,7 +22,7 @@
           type="number"
           name="valor"
           step="0.01"
-          min="0"
+          min="0.01"
           [ngModel]="valor()"
           (ngModelChange)="valor.set($event)"
           required
@@ -55,23 +53,97 @@
         <small>Até quando você espera uma resposta</small>
       </div>
 
-      <button
-        type="submit"
-        class="proposta-button"
-        [disabled]="isSubmitting()"
-      >
+      <!-- OPCIONAIS -->
+      <div class="proposta-field">
+        <label for="dataInicio">Data de início (opcional)</label>
+        <input id="dataInicio" type="date" name="dataInicio" [(ngModel)]="dataInicio" />
+      </div>
+
+      <div class="proposta-field">
+        <label for="dataFim">Data de fim (opcional)</label>
+        <input id="dataFim" type="date" name="dataFim" [(ngModel)]="dataFim" />
+        <small>Se informar as duas, a de início não pode ser posterior à de fim</small>
+      </div>
+
+      <button type="submit" class="proposta-button" [disabled]="isSubmitting()">
         {{ isSubmitting() ? 'Enviando...' : 'Enviar proposta' }}
       </button>
 
       @if (errorMessage()) {
-        <p class="proposta-message proposta-message--error">
-          {{ errorMessage() }}
-        </p>
+        <p class="proposta-message proposta-message--error">{{ errorMessage() }}</p>
       } @else if (successMessage()) {
-        <p class="proposta-message proposta-message--success">
-          {{ successMessage() }}
-        </p>
+        <p class="proposta-message proposta-message--success">{{ successMessage() }}</p>
       }
     </form>
   </section>
+
+  <!-- HISTÓRICO NA MESMA TELA -->
+  @if (contratoId()) {
+    <section class="proposta-historico">
+      <h3>Histórico de propostas (Contrato #{{ contratoId() }})</h3>
+
+      @if (carregandoHistorico()) {
+        <p>Carregando histórico...</p>
+      }
+
+      @if (erroHistorico()) {
+        <p class="proposta-message proposta-message--error">{{ erroHistorico() }}</p>
+      }
+
+      <ul class="timeline">
+        @for (p of propostas(); track p.id) {
+          <li class="timeline-item" [class.pendente]="p.status === 'PENDENTE'"
+                                    [class.aceita]="p.status === 'ACEITA'"
+                                    [class.recusada]="p.status === 'RECUSADA'">
+            <div class="header">
+              <strong>#{{ p.id }}</strong>
+              <span> — {{ p.status }}</span>
+            </div>
+
+            <div>Valor: {{ p.valor | currency:'BRL' }}</div>
+            <div>Mensagem: {{ p.mensagem || '-' }}</div>
+            <div>Prazo: {{ p.prazoResposta | date:'short' }}</div>
+            <div>Criada em: {{ p.dataCriacao | date:'short' }}</div>
+
+            @if (podeAgir(p)) {
+              <div class="acoes">
+                <button (click)="aceitar(p)" [disabled]="executandoAcao()">Aceitar</button>
+                <button (click)="recusar(p)" [disabled]="executandoAcao()">Recusar</button>
+                <button (click)="abrirModalContrapropor(p)" [disabled]="executandoAcao()">Contrapropor</button>
+              </div>
+            }
+          </li>
+        }
+      </ul>
+    </section>
+  }
+
+  <!-- MODAL DE CONTRAPROPOSTA -->
+  @if (showModal()) {
+    <div class="modal">
+      <div class="modal-content">
+        <h3>Enviar contraproposta</h3>
+
+        <label>Valor*</label>
+        <input type="number" min="0.01" step="0.01"
+               [ngModel]="contrapropostaValor()"
+               (ngModelChange)="contrapropostaValor.set($event)" />
+
+        <label>Mensagem (opcional)</label>
+        <textarea [(ngModel)]="contrapropostaMensagem"></textarea>
+
+        <label>Prazo de resposta*</label>
+        <input type="datetime-local" [(ngModel)]="contrapropostaPrazo" />
+
+        <div class="modal-actions">
+          <button (click)="enviarContraproposta()" [disabled]="executandoAcao()">Enviar</button>
+          <button (click)="fecharModal()">Cancelar</button>
+        </div>
+
+        @if (erroModal()) {
+          <p class="proposta-message proposta-message--error">{{ erroModal() }}</p>
+        }
+      </div>
+    </div>
+  }
 </div>

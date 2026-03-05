@@ -2,8 +2,30 @@ import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import api from '../services/api';
-import { getUserFromToken } from '../services/authService';
+import { PropostasApiService } from '../services/propostasApiService';
+import { getUserFromToken } from '@/shared/auth';
+
+type PropostaResponseDTO = {
+  id: number;
+  contratoId: number;
+  remetenteId: number | null;
+  destinatarioId: number | null;
+  valor: number;
+  mensagem: string;
+  prazoResposta: string;
+  status: 'PENDENTE' | 'ACEITA' | 'RECUSADA';
+  propostaPaiId?: number | null;
+  dataCriacao: string;
+};
+
+type CriarPropostaPayload = {
+  servicoId: number;
+  valor: number;
+  mensagem: string;
+  prazoResposta: string; // ISO
+  dataInicio?: string | null;
+  dataFim?: string | null;
+};
 
 @Component({
   selector: 'app-proposta',
@@ -13,22 +35,59 @@ import { getUserFromToken } from '../services/authService';
   styleUrl: './proposta.component.css',
 })
 export class Proposta {
+  // Serviço
   servicoId = signal(0);
   servicoTitulo = signal('');
   precoBase = signal(0);
 
+  // Form
   valor = signal(0);
   mensagem = '';
-  prazoResposta = '';
+  prazoResposta = ''; // yyyy-MM-ddTHH:mm
+  dataInicio = '';    // yyyy-MM-dd
+  dataFim = '';       // yyyy-MM-dd
 
+  // Estado geral
   isSubmitting = signal(false);
   errorMessage = signal('');
   successMessage = signal('');
 
-  constructor(private route: ActivatedRoute, private router: Router) {
+  // Histórico na mesma tela
+  contratoId = signal<number | null>(null);
+  propostas = signal<PropostaResponseDTO[]>([]);
+  carregandoHistorico = signal(false);
+  erroHistorico = signal('');
+
+  // Modal Contraproposta
+  showModal = signal(false);
+  contrapropostaValor = signal<number | null>(null);
+  contrapropostaMensagem = '';
+  contrapropostaPrazo = new Date(Date.now() + 3 * 24 * 3600 * 1000).toISOString().substring(0, 16);
+  propostaBaseIdParaContrapropor: number | null = null;
+  erroModal = signal('');
+  executandoAcao = signal(false);
+
+  // Usuário atual (p/ decidir botões)
+  usuarioIdAtual: number | null = Number(localStorage.getItem('userId') || 0) || null;
+
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private propostasApiService: PropostasApiService
+  ) {
+    // pega :id da rota
     this.servicoId.set(Number(this.route.snapshot.paramMap.get('id')));
+    // Default: prazo em 7 dias
     this.prazoResposta = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().substring(0, 16);
+    // Tenta receber contratoId via state (se veio de outro lugar)
+    const stateContratoId = history.state?.contratoId as number | undefined;
+    if (stateContratoId) this.contratoId.set(stateContratoId);
+
     this.carregarDadosServico();
+    // Se já tem contratoId no state, carrega histórico ao abrir
+    if (this.contratoId()) {
+      this.carregarHistorico();
+    }
   }
 
   private carregarDadosServico() {
@@ -40,18 +99,37 @@ export class Proposta {
     }
   }
 
+  private isFuture(isoOrDateStr: string): boolean {
+    const d = new Date(isoOrDateStr);
+    return d.getTime() > Date.now();
+  }
+
+  private toISODate(dateStr?: string | null): string | null {
+    if (!dateStr) return null;
+    const d = new Date(dateStr + 'T00:00');
+    return d.toISOString();
+  }
+
   async onSubmit() {
     this.errorMessage.set('');
     this.successMessage.set('');
 
+    // Validações simples
     if (!this.valor() || this.valor() <= 0) {
       this.errorMessage.set('Informe um valor válido maior que 0.');
       return;
     }
-
-    if (!this.prazoResposta) {
-      this.errorMessage.set('Informe um prazo de resposta.');
+    if (!this.prazoResposta || !this.isFuture(this.prazoResposta)) {
+      this.errorMessage.set('Informe um prazo de resposta no futuro.');
       return;
+    }
+    if (this.dataInicio && this.dataFim) {
+      const start = new Date(this.dataInicio);
+      const end = new Date(this.dataFim);
+      if (start.getTime() > end.getTime()) {
+        this.errorMessage.set('A data de início não pode ser posterior à data de fim.');
+        return;
+      }
     }
 
     this.isSubmitting.set(true);
@@ -59,57 +137,129 @@ export class Proposta {
     try {
       const user = getUserFromToken() as any;
       if (!user) {
-        console.warn('[Proposta] Usuário não encontrado. Redirecionando para login.');
         this.router.navigate(['/login']);
         return;
       }
 
-      const token = localStorage.getItem('token');
-      if (!token) {
-        console.error('[Proposta] Token não encontrado no localStorage');
-        this.errorMessage.set('Sessão expirada. Por favor, faça login novamente.');
-        this.router.navigate(['/login']);
-        return;
-      }
-
-      console.log('[Proposta] Enviando proposta com token:', token.substring(0, 20) + '...');
-
-      const payload = {
+      const payload: CriarPropostaPayload = {
         servicoId: this.servicoId(),
-        valor: this.valor(),
+        valor: Number(this.valor().toFixed(2)),
         mensagem: this.mensagem || '',
-        prazoResposta: new Date(this.prazoResposta),
+        prazoResposta: new Date(this.prazoResposta).toISOString(),
+        dataInicio: this.dataInicio ? this.toISODate(this.dataInicio) : null,
+        dataFim: this.dataFim ? this.toISODate(this.dataFim) : null,
       };
 
-      console.log('[Proposta] Payload:', payload);
-
-      const response = await api.post('/propostas', payload);
+      const response = await this.propostasApiService.criar(payload);
       if (response.status === 201 || response.status === 200) {
+        const proposta = response.data as PropostaResponseDTO;
+        const cid = proposta.contratoId;
         this.successMessage.set('Proposta enviada com sucesso!');
 
-        setTimeout(() => {
-          this.router.navigate(['/servicos']);
-        }, 1500);
+        // Se não tínhamos contratoId, agora passamos a exibir histórico na mesma tela
+        if (cid && !this.contratoId()) {
+          this.contratoId.set(cid);
+          await this.carregarHistorico();
+        } else if (cid) {
+          // já tínhamos contratoId: apenas recarrega a lista
+          await this.carregarHistorico();
+        }
       }
     } catch (error: any) {
-      console.error('[Proposta] Erro completo:', error);
-      console.error('[Proposta] Erro response:', error?.response);
-      console.error('[Proposta] Erro message:', error?.message);
-
-      if (error?.response?.status === 401) {
-        this.errorMessage.set(
-          'Autenticação inválida. Faça login novamente.'
-        );
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        this.router.navigate(['/login']);
-      } else {
-        this.errorMessage.set(
-          error?.response?.data?.message || 'Não foi possível enviar sua proposta.'
-        );
-      }
+      this.errorMessage.set(error?.response?.data?.message || 'Não foi possível enviar sua proposta.');
     } finally {
       this.isSubmitting.set(false);
+    }
+  }
+
+  // ---------- Histórico e ações (na mesma tela) ----------
+
+  async carregarHistorico() {
+    const cid = this.contratoId();
+    if (!cid) return;
+
+    this.carregandoHistorico.set(true);
+    this.erroHistorico.set('');
+    try {
+      const { data } = await this.propostasApiService.historico(cid);
+      this.propostas.set(data as PropostaResponseDTO[]);
+    } catch (e: any) {
+      this.erroHistorico.set(e?.response?.data?.message ?? 'Erro ao carregar histórico.');
+    } finally {
+      this.carregandoHistorico.set(false);
+    }
+  }
+
+  podeAgir(p: PropostaResponseDTO) {
+    return p.status === 'PENDENTE' && this.usuarioIdAtual && p.destinatarioId === this.usuarioIdAtual;
+    // Obs.: autorização real é validada no backend; aqui é só UX.
+  }
+
+  async aceitar(p: PropostaResponseDTO) {
+    this.executandoAcao.set(true);
+    try {
+      await this.propostasApiService.aceitar(p.id);
+      await this.carregarHistorico();
+    } catch (e: any) {
+      this.erroHistorico.set(e?.response?.data?.message ?? 'Erro ao aceitar.');
+    } finally {
+      this.executandoAcao.set(false);
+    }
+  }
+
+  async recusar(p: PropostaResponseDTO) {
+    this.executandoAcao.set(true);
+    try {
+      await this.propostasApiService.recusar(p.id);
+      await this.carregarHistorico();
+    } catch (e: any) {
+      this.erroHistorico.set(e?.response?.data?.message ?? 'Erro ao recusar.');
+    } finally {
+      this.executandoAcao.set(false);
+    }
+  }
+
+  abrirModalContrapropor(p: PropostaResponseDTO) {
+    this.propostaBaseIdParaContrapropor = p.id;
+    this.contrapropostaValor.set(p.valor); // pré-preencher
+    this.contrapropostaMensagem = '';
+    this.contrapropostaPrazo = new Date(Date.now() + 3 * 24 * 3600 * 1000).toISOString().substring(0, 16);
+    this.erroModal.set('');
+    this.showModal.set(true);
+  }
+
+  fecharModal() {
+    this.showModal.set(false);
+    this.propostaBaseIdParaContrapropor = null;
+  }
+
+  async enviarContraproposta() {
+    if (!this.propostaBaseIdParaContrapropor) return;
+
+    const valor = this.contrapropostaValor();
+    if (!valor || valor <= 0) {
+      this.erroModal.set('Informe um valor válido.');
+      return;
+    }
+
+    this.executandoAcao.set(true);
+    try {
+      const payload: CriarPropostaPayload = {
+        servicoId: this.servicoId(), // o backend vai validar com o contrato
+        valor: Number(valor.toFixed(2)),
+        mensagem: this.contrapropostaMensagem || '',
+        prazoResposta: new Date(this.contrapropostaPrazo).toISOString(),
+        dataInicio: null,
+        dataFim: null,
+      };
+
+      await this.propostasApiService.contrapropor(this.propostaBaseIdParaContrapropor, payload);
+      this.fecharModal();
+      await this.carregarHistorico();
+    } catch (e: any) {
+      this.erroModal.set(e?.response?.data?.message ?? 'Erro ao enviar contraproposta.');
+    } finally {
+      this.executandoAcao.set(false);
     }
   }
 }
