@@ -173,7 +173,6 @@ export class Proposta {
   }
 
   // ---------- Histórico e ações (na mesma tela) ----------
-
   async carregarHistorico() {
     const cid = this.contratoId();
     if (!cid) return;
@@ -182,7 +181,16 @@ export class Proposta {
     this.erroHistorico.set('');
     try {
       const { data } = await this.propostasApiService.historico(cid);
-      this.propostas.set(data as PropostaResponseDTO[]);
+      const lista = (data as PropostaResponseDTO[]) ?? [];
+      this.propostas.set(lista);
+
+      if (lista.length > 0) {
+        const ordenadas = [...lista].sort(
+          (a, b) => new Date(a.dataCriacao).getTime() - new Date(b.dataCriacao).getTime()
+        );
+        const ultima = ordenadas[ordenadas.length - 1];
+        this.setFormFromProposta(ultima);
+      }
     } catch (e: any) {
       this.erroHistorico.set(e?.response?.data?.message ?? 'Erro ao carregar histórico.');
     } finally {
@@ -190,9 +198,9 @@ export class Proposta {
     }
   }
 
+
   podeAgir(p: PropostaResponseDTO) {
     return p.status === 'PENDENTE' && this.usuarioIdAtual && p.destinatarioId === this.usuarioIdAtual;
-    // Obs.: autorização real é validada no backend; aqui é só UX.
   }
 
   async aceitar(p: PropostaResponseDTO) {
@@ -218,15 +226,16 @@ export class Proposta {
       this.executandoAcao.set(false);
     }
   }
-
+  
   abrirModalContrapropor(p: PropostaResponseDTO) {
     this.propostaBaseIdParaContrapropor = p.id;
-    this.contrapropostaValor.set(p.valor); // pré-preencher
+    this.contrapropostaValor.set(p.valor || this.valor() || 0);
     this.contrapropostaMensagem = '';
-    this.contrapropostaPrazo = new Date(Date.now() + 3 * 24 * 3600 * 1000).toISOString().substring(0, 16);
+    this.contrapropostaPrazo = this.toLocalInputDateTime(p.prazoResposta) || this.contrapropostaPrazo;
     this.erroModal.set('');
     this.showModal.set(true);
   }
+
 
   fecharModal() {
     this.showModal.set(false);
@@ -262,4 +271,55 @@ export class Proposta {
       this.executandoAcao.set(false);
     }
   }
+
+  private toLocalInputDateTime(iso?: string | null): string {
+    if (!iso) return '';
+    const d = new Date(iso);
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    // monta no timezone local
+    const yyyy = d.getFullYear();
+    const mm = pad(d.getMonth() + 1);
+    const dd = pad(d.getDate());
+    const hh = pad(d.getHours());
+    const mi = pad(d.getMinutes());
+    return `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
+  }
+  
+  private toLocalInputDate(iso?: string | null): string {
+    if (!iso) return '';
+    const d = new Date(iso);
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    const yyyy = d.getFullYear();
+    const mm = pad(d.getMonth() + 1);
+    const dd = pad(d.getDate());
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
+  private setFormFromProposta(p: PropostaResponseDTO) {
+    // Valor
+    if (typeof p.valor === 'number' && p.valor > 0) {
+      this.valor.set(p.valor);
+      this.contrapropostaValor.set(p.valor); // modal default
+    }
+
+    // Mensagem (deixa opcional)
+    this.mensagem = ''; // para nova proposta, mantém em branco por padrão
+    this.contrapropostaMensagem = ''; // modal em branco
+
+    // Prazo de resposta: usa o da última proposta como base, senão mantém +3d
+    if (p.prazoResposta) {
+      const local = this.toLocalInputDateTime(p.prazoResposta);
+      this.prazoResposta = local || this.prazoResposta;
+      this.contrapropostaPrazo = local || this.contrapropostaPrazo;
+    }
+
+    // Datas opcionais do contrato (se vieram na proposta)
+    this.dataInicio = p.dataCriacao ? '' : this.dataInicio; // mantém atual se não houver
+    // Se seu backend retorna dataInicio/dataFim dentro do DTO de proposta, mapeie aqui:
+    // this.dataInicio = this.toLocalInputDate(p.dataInicio as any);
+    // this.dataFim    = this.toLocalInputDate(p.dataFim as any);
+    // Obs.: pelo DTO atual, não há essas propriedades; se decidir acrescentar, só descomentar.
+  }
+
+
 }
