@@ -29,7 +29,7 @@ export class PropostasApiService {
     return api.post(`/propostas/${propostaId}/recusar`, {});
   }
 
-  contrapropor(propostaId: number, payload: CriarPropostaPayload) {
-    return api.post(`/propostas/${propostaId}/contrapropor`, payload);
+  contrapropor(contratoId: number, payload: CriarPropostaPayload) {
+    return api.post(`/propostas/${contratoId}/contrapropor`, payload);
   }
 }

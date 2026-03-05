@@ -150,7 +150,7 @@ export class Proposta {
         dataFim: this.dataFim ? this.toISODate(this.dataFim) : null,
       };
 
-      const response = await this.propostasApiService.criar(payload);
+      const response = await this.propostasApiService.contrapropor(this.contratoId, payload);
       if (response.status === 201 || response.status === 200) {
         const proposta = response.data as PropostaResponseDTO;
         const cid = proposta.contratoId;
