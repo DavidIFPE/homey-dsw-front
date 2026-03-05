@@ -202,8 +202,6 @@ export class HistoricoPropostas implements OnInit {
   labelUsuario(idUsuario: number): string {
     return this.ehVoce(idUsuario) ? 'Você' : `Usuário #${idUsuario}`;
   }
-
-
   
   // Helpers visuais
   ehVoce(idUsuario: number): boolean {
