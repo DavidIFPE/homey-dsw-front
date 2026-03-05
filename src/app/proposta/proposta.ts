@@ -3,7 +3,7 @@ import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PropostasApiService } from '../services/propostasApiService';
-import { getUserFromToken } from '@/shared/auth';
+import { getUserFromToken } from '../services/authService';
 
 type PropostaResponseDTO = {
   id: number;
