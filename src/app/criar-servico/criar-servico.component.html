@@ -129,6 +129,14 @@
                     />
                     <button
                         type="button"
+                        class="criar-servico-buscar-cep"
+                        (click)="buscarEnderecoPorCEP()"
+                        [disabled]="buscandoCEP"
+                    >
+                        {{ buscandoCEP ? 'Buscando...' : 'Buscar CEP' }}
+                    </button>
+                    <button
+                        type="button"
                         class="criar-servico-buscar-coord"
                         (click)="buscarCoordenadas()"
                         [disabled]="buscandoCoordenadas"

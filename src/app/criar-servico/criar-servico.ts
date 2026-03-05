@@ -3,6 +3,7 @@ import { Router } from "@angular/router";
 import { FormsModule } from "@angular/forms";
 import { CommonModule } from "@angular/common";
 import api from "../services/api";
+import axios from "axios";
 
 interface EnderecoDTO {
     logradouro?: string;
@@ -39,6 +40,7 @@ export class CriarServico {
     categoriasTexto = '';
     erro?: string;
     buscandoCoordenadas = false;
+    buscandoCEP = false;
 
     // Endereço do serviço
     logradouro = '';
@@ -52,6 +54,44 @@ export class CriarServico {
     longitude!: number;
 
     constructor(private Firouter: Router, private ngZone: NgZone, private cdr: ChangeDetectorRef) {}
+
+    async buscarEnderecoPorCEP() {
+        this.erro = undefined;
+        
+        if (!this.cep) {
+            this.erro = "Informe um CEP para buscar o endereço.";
+            return;
+        }
+
+        this.buscandoCEP = true;
+        const cepLimpo = this.cep.replace(/\D/g, "");
+
+        try {
+            // Usar API ViaCEP (Correios) para buscar endereço
+            const response = await axios.get(`https://viacep.com.br/ws/${cepLimpo}/json/`);
+            
+            if (response.data.erro) {
+                this.erro = "CEP não encontrado nos Correios.";
+                this.buscandoCEP = false;
+                this.cdr.detectChanges();
+                return;
+            }
+
+            this.ngZone.run(() => {
+                // Preencher dados automaticamente
+                this.logradouro = response.data.logradouro || '';
+                this.bairro = response.data.bairro || '';
+                this.cidade = response.data.localidade || '';
+                this.estado = response.data.uf || '';
+                this.cdr.detectChanges();
+            });
+        } catch (error: any) {
+            this.erro = "Erro ao buscar CEP nos Correios. Verifique a conexão.";
+        } finally {
+            this.buscandoCEP = false;
+            this.cdr.detectChanges();
+        }
+    }
 
     buscarCoordenadas() {
         this.erro = undefined;

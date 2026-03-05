@@ -2,6 +2,7 @@
 import { Component, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import axios from 'axios';
+import api from '../services/api';
 
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -36,13 +37,24 @@ export class Login {
         if (this.token) {
           localStorage.setItem('token', this.token);
         }
-        if (response.data.usuario) {
-          localStorage.setItem('user', JSON.stringify(response.data.usuario));
-        }
-        if (response.data?.usuario?.tipo === 'PRESTADOR') {
-          this.router.navigate(['/servicos']);
-        } else {
-          this.router.navigate(['/']);
+        
+        // Busca os dados do usuário logado após obter o token
+        try {
+          const usuarioResponse = await api.get('/autenticacao/me');
+          if (usuarioResponse.data) {
+            localStorage.setItem('user', JSON.stringify(usuarioResponse.data));
+            const userType = usuarioResponse.data.tipo;
+            
+            if (userType === 'PRESTADOR') {
+              this.router.navigate(['/servicos']);
+            } else {
+              this.router.navigate(['/']);
+            }
+          }
+        } catch (error) {
+          // Se falhar ao obter dados, ainda assim faz logout
+          localStorage.removeItem('token');
+          this.errorMessage = 'Erro ao buscar dados do usuário. Tente novamente.';
         }
         
       } else {

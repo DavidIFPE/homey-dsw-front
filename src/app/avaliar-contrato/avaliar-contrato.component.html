@@ -1,0 +1,226 @@
+<div class="avaliar-contrato-page">
+  <section class="avaliar-contrato-header">
+    <button type="button" class="avaliar-contrato-back" (click)="voltar()">
+      ← Voltar
+    </button>
+    <h2 class="avaliar-contrato-title">Avaliar Serviço</h2>
+  </section>
+
+  @if (loading()) {
+    <p class="avaliar-contrato-loading">Carregando contrato...</p>
+  } @else {
+    @if (errorMessage()) {
+      <p class="avaliar-contrato-message avaliar-contrato-message--error">
+        {{ errorMessage() }}
+      </p>
+    }
+
+    @if (contrato() && contrato()!.status?.toUpperCase() === 'CONCLUIDO') {
+      <div class="avaliar-contrato-form-container">
+        <article class="avaliar-contrato-info">
+          <h3 class="avaliar-contrato-info__title">
+            {{ contrato()!.servicoTitulo || 'Serviço' }}
+          </h3>
+          <p class="avaliar-contrato-info__detail">
+            <strong>Prestador:</strong> {{ contrato()!.prestadorNome }}
+          </p>
+          <p class="avaliar-contrato-info__detail">
+            <strong>Valor:</strong> {{ contrato()!.valorFinal | currency:'BRL' }}
+          </p>
+          <p class="avaliar-contrato-info__detail">
+            <strong>Data de conclusão:</strong> 
+            {{ contrato()!.dataFim | date:'dd/MM/yyyy HH:mm' }}
+          </p>
+        </article>
+
+        @if (modoVisualizacao()) {
+          <!-- Modo Visualização: Avaliação já enviada -->
+          <article class="avaliar-contrato-visualizacao">
+            <h3 class="avaliar-contrato-visualizacao__title">Sua Avaliação</h3>
+            
+            <div class="avaliar-contrato-visualizacao__rating">
+              <p class="avaliar-contrato-visualizacao__label">Nota:</p>
+              <div class="avaliar-contrato-rating">
+                @for (i of gerarEstrelasArray(avaliacaoExistente()!.nota); track i) {
+                  <span class="avaliar-contrato-star avaliar-contrato-star--filled">★</span>
+                }
+                @for (i of gerarEstrelasVazias(avaliacaoExistente()!.nota); track i) {
+                  <span class="avaliar-contrato-star">★</span>
+                }
+              </div>
+            </div>
+
+            <div class="avaliar-contrato-visualizacao__comment">
+              <p class="avaliar-contrato-visualizacao__label">Comentário:</p>
+              <p class="avaliar-contrato-visualizacao__text">
+                {{ avaliacaoExistente()!.comentario }}
+              </p>
+            </div>
+
+            @if (avaliacaoExistente()!.fotoUrl && avaliacaoExistente()!.fotoUrl.trim()) {
+              <div class="avaliar-contrato-visualizacao__fotos">
+                <p class="avaliar-contrato-visualizacao__label">Foto do Serviço:</p>
+                <div class="avaliar-contrato-preview">
+                  <img 
+                    [src]="gerarUrlFoto(avaliacaoExistente()!.fotoUrl)" 
+                    alt="Foto do serviço"
+                    class="avaliar-contrato-preview__img"
+                    (error)="onImageError($event)"
+                  />
+                </div>
+              </div>
+            } @else {
+              <div class="avaliar-contrato-visualizacao__fotos">
+                <p class="avaliar-contrato-visualizacao__label">Foto do Serviço:</p>
+                <p class="avaliar-contrato-visualizacao__sem-foto">
+                  Nenhuma foto foi anexada nesta avaliação
+                </p>
+              </div>
+            }
+
+            <p class="avaliar-contrato-visualizacao__data">
+              Avaliação enviada em: {{ avaliacaoExistente()!.dataCriacao | date:'dd/MM/yyyy HH:mm' }}
+            </p>
+
+            <div class="avaliar-contrato-actions">
+              <button
+                type="button"
+                class="avaliar-contrato-button avaliar-contrato-button--secondary"
+                (click)="voltar()"
+              >
+                Voltar
+              </button>
+            </div>
+          </article>
+        } @else {
+          <!-- Modo Edição: Formulário para nova avaliação -->
+          <form class="avaliar-contrato-form" (ngSubmit)="onSubmit()">
+          <!-- Seção de Notas -->
+          <fieldset class="avaliar-contrato-fieldset">
+            <legend class="avaliar-contrato-legend">Sua Avaliação</legend>
+
+            <div class="avaliar-contrato-field">
+              <label for="nota" class="avaliar-contrato-label">
+                Nota (1-5 estrelas)
+              </label>
+              <div class="avaliar-contrato-rating">
+                @for (i of [1, 2, 3, 4, 5]; track i) {
+                  <button
+                    type="button"
+                    class="avaliar-contrato-star"
+                    [class.avaliar-contrato-star--filled]="i <= nota()"
+                    (click)="nota.set(i)"
+                    [attr.aria-label]="i + ' estrela(s)'"
+                  >
+                    ★
+                  </button>
+                }
+              </div>
+              <p class="avaliar-contrato-field__hint">
+                {{ nota() }} de 5 estrelas
+              </p>
+            </div>
+
+            <div class="avaliar-contrato-field">
+              <label for="comentario" class="avaliar-contrato-label">
+                Seu Comentário *
+              </label>
+              <textarea
+                id="comentario"
+                name="comentario"
+                class="avaliar-contrato-textarea"
+                placeholder="Descreva sua experiência com o serviço..."
+                [(ngModel)]="comentario"
+                required
+                minlength="10"
+                maxlength="500"
+              ></textarea>
+              <p class="avaliar-contrato-field__hint">
+                {{ comentario().length }}/500
+              </p>
+            </div>
+          </fieldset>
+
+          <!-- Seção de Fotos -->
+          <fieldset class="avaliar-contrato-fieldset">
+            <legend class="avaliar-contrato-legend">Foto do Serviço</legend>
+
+            <div class="avaliar-contrato-field">
+              <label for="fotos" class="avaliar-contrato-label">
+                Enviar Foto (máximo 5MB)
+              </label>
+              <div class="avaliar-contrato-file-input">
+                <input
+                  id="fotos"
+                  type="file"
+                  name="fotos"
+                  class="avaliar-contrato-input-hidden"
+                  accept="image/*"
+                  (change)="onFotoSelected($event)"
+                />
+                <label for="fotos" class="avaliar-contrato-file-label">
+                  📷 Clique para selecionar uma foto
+                </label>
+              </div>
+              <p class="avaliar-contrato-field__hint">
+                @if (fotos().length > 0) {
+                  Foto selecionada ✓
+                } @else {
+                  Nenhuma foto selecionada
+                }
+              </p>
+            </div>
+
+            <!-- Preview da Foto -->
+            @if (previewUrls().length > 0) {
+              <div class="avaliar-contrato-preview-single">
+                <div class="avaliar-contrato-preview">
+                  <img 
+                    [src]="previewUrls()[0]" 
+                    alt="Preview foto"
+                    class="avaliar-contrato-preview__img"
+                  />
+                  <button
+                    type="button"
+                    class="avaliar-contrato-preview__remove"
+                    (click)="removerFoto()"
+                    title="Remover foto"
+                  >
+                    ✕
+                  </button>
+                </div>
+              </div>
+            }
+          </fieldset>
+
+          <!-- Mensagens -->
+          @if (successMessage()) {
+            <p class="avaliar-contrato-message avaliar-contrato-message--success">
+              {{ successMessage() }}
+            </p>
+          }
+
+          <!-- Botões de Ação -->
+          <div class="avaliar-contrato-actions">
+            <button
+              type="button"
+              class="avaliar-contrato-button avaliar-contrato-button--secondary"
+              (click)="voltar()"
+              [disabled]="submitting()"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              class="avaliar-contrato-button"
+              [disabled]="submitting() || !comentario().trim()"
+            >
+              {{ submitting() ? 'Enviando...' : 'Enviar Avaliação' }}
+            </button>
+          </div>
+        </form>
+        }
+      </div>
+    }
+  }
+</div>

@@ -1,0 +1,258 @@
+<section class="user-profile-page">
+  <h1 class="user-profile-title">Meu Perfil</h1>
+
+  @if (loading()) {
+    <div class="loading-spinner">
+      <p>Carregando perfil...</p>
+    </div>
+  } @else if (usuario()) {
+    <div class="user-profile-container">
+      <!-- Seção de Avatar/Foto -->
+      <article class="photo-section">
+        <div class="photo-container">
+          @if (photoPreview()) {
+            <img [src]="photoPreview()" [alt]="usuario()!.nome" class="user-avatar" />
+          } @else {
+            <div class="avatar-placeholder">
+              {{ obterAcronimo(usuario()!.nome) }}
+            </div>
+          }
+          <div class="photo-upload-overlay">
+            <label class="upload-button">
+              <span class="icon">📷</span>
+              <span class="text">Trocar foto</span>
+              <input
+                type="file"
+                accept="image/*"
+                (change)="onFileSelected($event)"
+                hidden
+              />
+            </label>
+          </div>
+        </div>
+
+        @if (selectedFile()) {
+          <div class="photo-actions">
+            <button
+              class="btn btn-primary btn-sm"
+              (click)="uploadFotoPerfil()"
+              [disabled]="uploadingPhoto()"
+            >
+              @if (uploadingPhoto()) {
+                <span>Enviando...</span>
+              } @else {
+                <span>Confirmar foto</span>
+              }
+            </button>
+            <button
+              class="btn btn-secondary btn-sm"
+              (click)="cancelarUpload()"
+              [disabled]="uploadingPhoto()"
+            >
+              Cancelar
+            </button>
+          </div>
+        }
+      </article>
+
+      <!-- Mensagens de Feedback -->
+      @if (errorMessage()) {
+        <div class="alert alert-error">
+          <span class="alert-icon">⚠️</span>
+          {{ errorMessage() }}
+        </div>
+      }
+
+      @if (successMessage()) {
+        <div class="alert alert-success">
+          <span class="alert-icon">✓</span>
+          {{ successMessage() }}
+        </div>
+      }
+
+      <!-- Seção de Informações do Usuário -->
+      <article class="profile-info-section">
+        <header class="section-header">
+          <h2 class="section-title">Informações Pessoais</h2>
+          @if (!editingMode()) {
+            <button class="btn btn-outline btn-sm" (click)="iniciarEdicao()">
+              ✏️ Editar
+            </button>
+          }
+        </header>
+
+        @if (!editingMode()) {
+          <!-- Modo Visualização -->
+          <div class="info-view">
+            <dl class="info-list">
+              <div class="info-item">
+                <dt>Nome</dt>
+                <dd>{{ usuario()!.nome }}</dd>
+              </div>
+              <div class="info-item">
+                <dt>Email</dt>
+                <dd>{{ usuario()!.email }}</dd>
+              </div>
+              <div class="info-item">
+                <dt>Username</dt>
+                <dd>@{{ usuario()!.username }}</dd>
+              </div>
+              <div class="info-item">
+                <dt>Telefone</dt>
+                <dd>{{ formatTelefone(usuario()!.telefone) }}</dd>
+              </div>
+              <div class="info-item">
+                <dt>Data de Nascimento</dt>
+                <dd>
+                  {{ usuario()!.dataNascimento | date: 'dd/MM/yyyy' }}
+                </dd>
+              </div>
+              <div class="info-item">
+                <dt>CPF/CNPJ</dt>
+                <dd>{{ formatCpfCnpj(usuario()!.cpfCnpj) }}</dd>
+              </div>
+              <div class="info-item">
+                <dt>Tipo de Conta</dt>
+                <dd>
+                  <span class="badge" [ngClass]="'badge-' + usuario()!.tipo.toLowerCase()">
+                    {{ usuario()!.tipo }}
+                  </span>
+                </dd>
+              </div>
+              @if (usuario()!.resumo) {
+                <div class="info-item info-item--full">
+                  <dt>Sobre você</dt>
+                  <dd>{{ usuario()!.resumo }}</dd>
+                </div>
+              }
+              <div class="info-item">
+                <dt>Membro desde</dt>
+                <dd>{{ usuario()!.dataCriacao | date: 'dd/MM/yyyy' }}</dd>
+              </div>
+            </dl>
+          </div>
+        } @else {
+          <!-- Modo Edição -->
+          <form [formGroup]="profileForm" class="edit-form">
+            <div class="form-group">
+              <label for="nome">Nome *</label>
+              <input
+                id="nome"
+                type="text"
+                formControlName="nome"
+                class="form-input"
+              />
+              @if (profileForm.get('nome')?.hasError('required')) {
+                <span class="error-text">Nome é obrigatório</span>
+              }
+              @if (profileForm.get('nome')?.hasError('minlength')) {
+                <span class="error-text">Nome deve ter pelo menos 3 caracteres</span>
+              }
+            </div>
+
+            <div class="form-group">
+              <label for="email">Email *</label>
+              <input
+                id="email"
+                type="email"
+                formControlName="email"
+                class="form-input"
+              />
+              @if (profileForm.get('email')?.hasError('required')) {
+                <span class="error-text">Email é obrigatório</span>
+              }
+              @if (profileForm.get('email')?.hasError('email')) {
+                <span class="error-text">Email inválido</span>
+              }
+            </div>
+
+            <div class="form-group">
+              <label for="username">Username *</label>
+              <input
+                id="username"
+                type="text"
+                formControlName="username"
+                class="form-input"
+              />
+              @if (profileForm.get('username')?.hasError('required')) {
+                <span class="error-text">Username é obrigatório</span>
+              }
+              @if (profileForm.get('username')?.hasError('minlength')) {
+                <span class="error-text">Username deve ter pelo menos 3 caracteres</span>
+              }
+            </div>
+
+            <div class="form-group">
+              <label for="telefone">Telefone *</label>
+              <input
+                id="telefone"
+                type="tel"
+                formControlName="telefone"
+                class="form-input"
+                placeholder="(00) 00000-0000"
+              />
+              @if (profileForm.get('telefone')?.hasError('required')) {
+                <span class="error-text">Telefone é obrigatório</span>
+              }
+            </div>
+
+            <div class="form-group">
+              <label for="dataNascimento">Data de Nascimento *</label>
+              <input
+                id="dataNascimento"
+                type="date"
+                formControlName="dataNascimento"
+                class="form-input"
+              />
+              @if (profileForm.get('dataNascimento')?.hasError('required')) {
+                <span class="error-text">Data de nascimento é obrigatória</span>
+              }
+            </div>
+
+            <div class="form-group">
+              <label for="resumo">Sobre você</label>
+              <textarea
+                id="resumo"
+                formControlName="resumo"
+                class="form-input form-textarea"
+                rows="4"
+                placeholder="Conte um pouco sobre você..."
+              ></textarea>
+              @if (profileForm.get('resumo')?.hasError('maxlength')) {
+                <span class="error-text">Resumo não pode ter mais de 500 caracteres</span>
+              }
+            </div>
+
+            <div class="form-actions">
+              <button
+                type="button"
+                class="btn btn-primary"
+                (click)="salvarPerfil()"
+                [disabled]="loading() || profileForm.invalid"
+              >
+                @if (loading()) {
+                  <span>Salvando...</span>
+                } @else {
+                  <span>Salvar alterações</span>
+                }
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                (click)="cancelarEdicao()"
+                [disabled]="loading()"
+              >
+                Cancelar
+              </button>
+            </div>
+          </form>
+        }
+      </article>
+    </div>
+  } @else if (errorMessage()) {
+    <div class="alert alert-error">
+      <span class="alert-icon">⚠️</span>
+      {{ errorMessage() }}
+    </div>
+  }
+</section>

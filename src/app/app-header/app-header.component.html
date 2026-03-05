@@ -10,6 +10,10 @@
             <a routerLink="/contratos" routerLinkActive="active" class="app-header__link">
                 Contratos
             </a>
+        } @else if (isLoggedIn) {
+            <a routerLink="/meus-contratos" routerLinkActive="active" class="app-header__link">
+                Meus Contratos
+            </a>
         }
         @if (!isLoggedIn) {
             <a routerLink="/login" routerLinkActive="active" class="app-header__link">
@@ -19,6 +23,12 @@
             @if (hasProfile && isPrestador) {
                 <a [routerLink]="['/prestador', userId]" routerLinkActive="active" class="app-header__link">
                     Meu perfil
+            <a routerLink="/perfil" routerLinkActive="active" class="app-header__link">
+                 Perfil
+            </a>
+            @if (hasProfile && isPrestador) {
+                <a [routerLink]="['/prestador', userId]" routerLinkActive="active" class="app-header__link">
+                    Meu perfil público
                 </a>
             }
             <button type="button" class="app-header__link app-header__link--button" (click)="onLogout()">
