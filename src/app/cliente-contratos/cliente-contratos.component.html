@@ -22,52 +22,56 @@
     @if (contratos().length === 0 && !errorMessage()) {
       <p class="cliente-contratos-empty">Nenhum contrato encontrado no momento.</p>
     } @else {
-      <article class="cliente-contratos-card">
-        <header class="cliente-contratos-card__header">
-          <div>
-            <h3 class="cliente-contratos-card__title">
-              {{ contrato.servicoTitulo || ('Serviço #' + contrato.servicoId) }}
-            </h3>
-            <p class="cliente-contratos-card__prestador">
-              Prestador: <strong>{{ contrato.prestadorNome }}</strong>
-            </p>
-          </div>
-          <span 
-            class="cliente-contratos-card__status"
-            [class.cliente-contratos-card__status--ativo]="contrato.status?.toUpperCase() === 'ATIVO'"
-            [class.cliente-contratos-card__status--concluido]="contrato.status?.toUpperCase() === 'CONCLUIDO'"
-            [class.cliente-contratos-card__status--cancelado]="contrato.status?.toUpperCase() === 'CANCELADO'"
-          >
-            {{ contrato.status || 'PENDENTE' }}
-          </span>
-        </header>
-
-        @if ((contrato.status || 'PENDENTE').toUpperCase() === 'PENDENTE') {
-          <button
-            type="button"
-            class="cliente-contratos-card__button"
-            (click)="navigateToNegociar(contrato)"
-          >
-            Negociar (propostas)
-          </button>
+      <div class="cliente-contratos-list">
+        @for (contrato of contratos(); track contrato.id) {
+          <article class="cliente-contratos-card">
+            <header class="cliente-contratos-card__header">
+              <div>
+                <h3 class="cliente-contratos-card__title">
+                  {{ contrato.servicoTitulo || ('Serviço #' + contrato.servicoId) }}
+                </h3>
+                <p class="cliente-contratos-card__prestador">
+                  Prestador: <strong>{{ contrato.prestadorNome }}</strong>
+                </p>
+              </div>
+              <span 
+                class="cliente-contratos-card__status"
+                [class.cliente-contratos-card__status--ativo]="contrato.status?.toUpperCase() === 'ATIVO'"
+                [class.cliente-contratos-card__status--concluido]="contrato.status?.toUpperCase() === 'CONCLUIDO'"
+                [class.cliente-contratos-card__status--cancelado]="contrato.status?.toUpperCase() === 'CANCELADO'"
+              >
+                {{ contrato.status || 'PENDENTE' }}
+              </span>
+            </header>
+    
+            @if ((contrato.status || 'PENDENTE').toUpperCase() === 'PENDENTE') {
+              <button
+                type="button"
+                class="cliente-contratos-card__button"
+                (click)="navigateToNegociar(contrato)"
+              >
+                Negociar (propostas)
+              </button>
+            }
+    
+            @if (canAvaliar(contrato.status, contrato.avaliado)) {
+              <button
+                type="button"
+                class="cliente-contratos-card__button"
+                (click)="navigateToAvaliar(contrato.id)"
+              >
+                Avaliar Serviço
+              </button>
+            }
+    
+            @if (contrato.avaliado && contrato.status?.toUpperCase() === 'CONCLUIDO') {
+              <p class="cliente-contratos-card__info cliente-contratos-card__info--success">
+                ✓ Serviço já avaliado
+              </p>
+            }
+          </article>
         }
-
-        @if (canAvaliar(contrato.status, contrato.avaliado)) {
-          <button
-            type="button"
-            class="cliente-contratos-card__button"
-            (click)="navigateToAvaliar(contrato.id)"
-          >
-            Avaliar Serviço
-          </button>
-        }
-
-        @if (contrato.avaliado && contrato.status?.toUpperCase() === 'CONCLUIDO') {
-          <p class="cliente-contratos-card__info cliente-contratos-card__info--success">
-            ✓ Serviço já avaliado
-          </p>
-        }
-      </article>
+      </div>
     }
   }
 </div>
