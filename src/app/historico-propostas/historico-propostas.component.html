@@ -23,7 +23,6 @@
             </span>
           </header>
 
-          
           <div class="proposta-card__participantes">
             <div class="linha-participante">
               <strong>Remetente:</strong>
@@ -38,30 +37,28 @@
             </div>
           </div>
 
-
-            <div class="proposta-card__valor">
-              <strong>Valor:</strong>
-              <span>{{ proposta.valor | currency:'BRL' }}</span>
-            </div>
-
-            @if (proposta.mensagem) {
-              <div class="proposta-card__mensagem">
-                <strong>Mensagem:</strong>
-                <p>{{ proposta.mensagem }}</p>
-              </div>
-            }
-
-            <div class="proposta-card__prazo">
-              <strong>Prazo de resposta:</strong>
-              <span>{{ formatarData(proposta.prazoResposta) }}</span>
-            </div>
-
-            @if (proposta.propostaPaiId) {
-              <div class="proposta-card__info">
-                <em>Esta é uma contraproposta à proposta #{{ proposta.propostaPaiId }}</em>
-              </div>
-            }
+          <div class="proposta-card__valor">
+            <strong>Valor:</strong>
+            <span>{{ proposta.valor | currency:'BRL' }}</span>
           </div>
+
+          @if (proposta.mensagem) {
+            <div class="proposta-card__mensagem">
+              <strong>Mensagem:</strong>
+              <p>{{ proposta.mensagem }}</p>
+            </div>
+          }
+
+          <div class="proposta-card__prazo">
+            <strong>Prazo de resposta:</strong>
+            <span>{{ formatarData(proposta.prazoResposta) }}</span>
+          </div>
+
+          @if (proposta.propostaPaiId) {
+            <div class="proposta-card__info">
+              <em>Esta é uma contraproposta à proposta #{{ proposta.propostaPaiId }}</em>
+            </div>
+          }
 
           <footer class="proposta-card__actions">
             @if (podeAceitar(proposta)) {
