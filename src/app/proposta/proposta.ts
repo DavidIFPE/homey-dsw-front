@@ -150,7 +150,14 @@ export class Proposta {
         dataFim: this.dataFim ? this.toISODate(this.dataFim) : null,
       };
 
-      const response = await this.propostasApiService.contrapropor(this.contratoId(), payload);
+      const cid = this.contratoId();
+      if (cid == null) {
+        this.errorMessage.set('Contrato não definido para contrapropor.');
+        this.isSubmitting.set(false);
+        return;
+      }
+      const response = await this.propostasApiService.contrapropor(cid, payload);
+
       if (response.status === 201 || response.status === 200) {
         const proposta = response.data as PropostaResponseDTO;
         const cid = proposta.contratoId;
