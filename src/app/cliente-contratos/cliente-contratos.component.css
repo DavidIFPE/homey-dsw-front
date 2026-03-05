@@ -77,6 +77,7 @@
   color: var(--color-primary);
 }
 
+/* STATUS BADGES */
 .cliente-contratos-card__status {
   display: inline-block;
   padding: 0.25rem 0.75rem;
@@ -103,6 +104,7 @@
   color: #991b1b;
 }
 
+/* INFO */
 .cliente-contratos-card__info {
   margin: 0.5rem 0;
   font-size: 0.9rem;
@@ -114,6 +116,7 @@
   font-weight: 500;
 }
 
+/* BOTÕES PADRÃO */
 .cliente-contratos-card__button {
   margin-top: 1rem;
   padding: 0.6rem 1.2rem;
@@ -124,9 +127,10 @@
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s, transform 0.1s;
 }
 
+/* HOVER/ACTIVE */
 .cliente-contratos-card__button:hover {
   background-color: var(--color-primary-dark);
 }
@@ -134,6 +138,25 @@
 .cliente-contratos-card__button:active {
   transform: translateY(1px);
 }
+
+/* --------------------------------------------- */
+/* NOVO: BOTÃO "NEGOCIAR" PARA CONTRATOS PENDENTES */
+/* Mantém o estilo base, só muda o tom para destacar */
+/* --------------------------------------------- */
+
+.cliente-contratos-card__button--negociar {
+  background-color: var(--color-primary-dark);
+}
+
+.cliente-contratos-card__button--negociar:hover {
+  background-color: var(--color-primary);
+}
+
+.cliente-contratos-card__button--negociar:active {
+  transform: translateY(1px);
+}
+
+/* --------------------------------------------- */
 
 .cliente-contratos-message {
   margin: 0.5rem 0;

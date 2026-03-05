@@ -87,4 +87,30 @@ export class ClienteContratos implements OnInit {
   navigateToAvaliar(contratoId: number) {
     this.router.navigate(['/avaliar-contrato', contratoId]);
   }
+
+  navigateToNegociar(contrato: ContratoClienteDTO) {
+    // Normaliza status e valida
+    const status = (contrato.status || 'PENDENTE').toUpperCase();
+    if (status !== 'PENDENTE') return; // segurança básica
+  
+    // Monta objeto mínimo de serviço para pré-preencher a tela unificada
+    const servicoState = {
+      id: contrato.servicoId,
+      titulo: contrato.servicoTitulo ?? `Serviço #${contrato.servicoId}`,
+      // Se não tiver um preço base aqui, pode usar 0 (o usuário ajusta na tela)
+      precoBase: contrato.valorFinal ?? 0,
+    };
+  
+    // Navega para a tela unificada (form + histórico),
+    // levando também o contratoId para já carregar a timeline
+    this.router.navigate(
+      ['/servicos', contrato.servicoId, 'proposta'],
+      {
+        state: {
+          servico: servicoState,
+          contratoId: contrato.id,
+        },
+      }
+    );
+  }
 }
